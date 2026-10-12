@@ -1,678 +1,611 @@
-```html
 <!DOCTYPE html>
-<html lang="en" class="h-full bg-slate-950 text-slate-100 select-none">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Mimi Designer - Mobile Graphic Studio</title>
-  
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            brand: { 500: '#6366f1', 600: '#4f46e5' }
-          }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mimi Designer - Mobile Logo & Graphics Studio</title>
+    <style>
+        :root {
+            --bg-dark: #12141c;
+            --bg-card: #1e2230;
+            --bg-hover: #2a2f42;
+            --accent: #ff2a6d;
+            --accent-glow: rgba(255, 42, 109, 0.4);
+            --text-main: #f0f2f8;
+            --text-muted: #8c96b0;
+            --border-color: #2e344a;
+            --dock-height: 70px;
         }
-      }
-    }
-  </script>
 
-  <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <!-- html2canvas for exporting PNG -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+        }
 
-  <!-- Google Fonts for Typography options -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Inter:wght@400;600;700&family=Montserrat:wght@700;900&family=Pacifico&family=Space+Grotesk:wght@700&family=Fredoka:wght@600&display=swap" rel="stylesheet">
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+        }
 
-  <style>
-    /* Custom mobile UI styling */
-    ::-webkit-scrollbar { display: none; }
-    * { -webkit-tap-highlight-color: transparent; }
+        /* Top Bar */
+        .top-bar {
+            height: 54px;
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 12px;
+            z-index: 100;
+        }
 
-    .workspace-bg {
-      background-color: #0b0f19;
-      background-image: radial-gradient(rgba(255, 255, 255, 0.1) 1.5px, transparent 1.5px);
-      background-size: 20px 20px;
-    }
+        .brand-title {
+            font-weight: 800;
+            font-size: 1.1rem;
+            letter-spacing: 0.5px;
+            background: linear-gradient(45deg, #ff2a6d, #05d9e8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
 
-    /* Selected element bounding box */
-    .element-selected {
-      outline: 2px dashed #6366f1;
-      outline-offset: 4px;
-    }
+        .top-actions {
+            display: flex;
+            gap: 8px;
+        }
 
-    /* Custom CSS shapes */
-    .shape-triangle {
-      width: 0; height: 0;
-      border-left: 50px solid transparent;
-      border-right: 50px solid transparent;
-      border-bottom: 100px solid currentColor;
-    }
+        .btn-icon {
+            background: var(--bg-hover);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            cursor: pointer;
+        }
 
-    .shape-right-triangle {
-      width: 0; height: 0;
-      border-left: 0px solid transparent;
-      border-right: 100px solid transparent;
-      border-bottom: 100px solid currentColor;
-    }
+        .btn-primary {
+            background: linear-gradient(135deg, #ff2a6d, #d1004b);
+            color: white;
+            border: none;
+            padding: 0 16px;
+            height: 38px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 12px var(--accent-glow);
+            cursor: pointer;
+        }
 
-    .shape-star {
-      clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
-    }
+        /* Main Workspace Container */
+        .workspace {
+            flex: 1;
+            position: relative;
+            overflow: auto;
+            background: #0a0b10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            /* Checkerboard pattern for transparency background */
+            background-image: 
+                linear-gradient(45deg, #161925 25%, transparent 25%), 
+                linear-gradient(-45deg, #161925 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, #161925 75%),
+                linear-gradient(-45deg, transparent 75%, #161925 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+        }
 
-    .shape-hexagon {
-      clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
-    }
+        /* The Big White Artboard */
+        .artboard-container {
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.1);
+            transition: width 0.2s, height 0.2s;
+        }
 
-    .shape-heart {
-      clip-path: polygon(50% 15%, 65% 0, 85% 0, 100% 20%, 100% 45%, 50% 95%, 0 45%, 0 20%, 15% 0, 35% 0);
-    }
-  </style>
+        #artboard {
+            width: 1000px;
+            height: 1000px;
+            background: #ffffff;
+            position: relative;
+            overflow: hidden;
+            transform-origin: center center;
+        }
+
+        /* Canvas Element Wrapper */
+        .canvas-element {
+            position: absolute;
+            cursor: move;
+            touch-action: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px;
+            box-sizing: border-box;
+        }
+
+        .canvas-element.selected {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+        }
+
+        /* Element Selection Handles */
+        .handle {
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            background: #ffffff;
+            border: 2px solid var(--accent);
+            border-radius: 50%;
+            display: none;
+        }
+
+        .canvas-element.selected .handle {
+            display: block;
+        }
+
+        .handle-se { bottom: -7px; right: -7px; cursor: se-resize; }
+        .handle-nw { top: -7px; left: -7px; cursor: nw-resize; }
+        .handle-rot { top: -24px; left: calc(50% - 7px); cursor: grab; background: var(--accent); }
+
+        /* Bottom Floating Dock */
+        .bottom-dock {
+            height: var(--dock-height);
+            background: var(--bg-card);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            padding: 0 8px;
+            z-index: 100;
+        }
+
+        .dock-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: var(--text-muted);
+            font-size: 0.72rem;
+            font-weight: 500;
+            background: none;
+            border: none;
+            cursor: pointer;
+            width: 60px;
+        }
+
+        .dock-item.active, .dock-item:active {
+            color: var(--accent);
+        }
+
+        .dock-icon {
+            font-size: 1.3rem;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-hover);
+        }
+
+        .dock-item.active .dock-icon {
+            background: rgba(255, 42, 109, 0.15);
+            color: var(--accent);
+        }
+
+        /* Slide-up Control Panels */
+        .control-panel {
+            position: fixed;
+            bottom: var(--dock-height);
+            left: 0;
+            right: 0;
+            background: var(--bg-card);
+            border-top: 1px solid var(--border-color);
+            border-radius: 16px 16px 0 0;
+            padding: 16px;
+            max-height: 50vh;
+            overflow-y: auto;
+            transform: translateY(110%);
+            transition: transform 0.3s cubic-bezier(0.1, 0.9, 0.2, 1);
+            z-index: 90;
+            box-shadow: 0 -10px 25px rgba(0,0,0,0.5);
+        }
+
+        .control-panel.open {
+            transform: translateY(0);
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .panel-title {
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--text-main);
+        }
+
+        .close-panel {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        /* Grid Controls Inside Panels */
+        .grid-options {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .opt-card {
+            background: var(--bg-hover);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 12px 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            color: var(--text-main);
+            font-size: 0.8rem;
+            text-align: center;
+        }
+
+        .opt-card svg {
+            width: 28px;
+            height: 28px;
+            fill: currentColor;
+        }
+
+        /* Color Swatches Grid */
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 10px;
+        }
+
+        .color-swatch {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.2);
+            cursor: pointer;
+        }
+
+        /* Text Input Group */
+        .text-input-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+
+        .text-input {
+            flex: 1;
+            background: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            outline: none;
+        }
+
+        .text-input:focus {
+            border-color: var(--accent);
+        }
+
+        .hidden-file-input {
+            display: none;
+        }
+
+        /* Layer List Item */
+        .layer-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-hover);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 6px;
+        }
+    </style>
 </head>
-<body class="h-full flex flex-col font-['Inter'] bg-slate-950 text-slate-100 overflow-hidden touch-none">
+<body>
 
-  <!-- Header Bar -->
-  <header class="h-14 bg-slate-900 border-b border-slate-800 px-4 flex items-center justify-between z-30 shrink-0">
-    <div class="flex items-center space-x-2.5">
-      <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-500 via-purple-500 to-rose-500 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-        <i data-lucide="palette" class="w-4 h-4 text-white"></i>
-      </div>
-      <div>
-        <h1 class="font-extrabold text-sm tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-rose-400">
-          Mimi Designer
-        </h1>
-        <p class="text-[9px] text-slate-400 font-medium leading-none">Mobile Graphic Studio</p>
-      </div>
+    <!-- Top Navigation Header -->
+    <header class="top-bar">
+        <div class="brand-title">Mimi Designer</div>
+        <div class="top-actions">
+            <button class="btn-icon" id="btn-undo" title="Undo">↩</button>
+            <button class="btn-icon" id="btn-clear" title="Clear Canvas">🗑️</button>
+            <button class="btn-primary" id="btn-export">Export 📥</button>
+        </div>
+    </header>
+
+    <!-- Main Workspace with White Artboard -->
+    <main class="workspace" id="workspace">
+        <div class="artboard-container">
+            <div id="artboard"></div>
+        </div>
+    </main>
+
+    <!-- Slide-up Panel: Text -->
+    <div class="control-panel" id="panel-text">
+        <div class="panel-header">
+            <span class="panel-title">Add & Edit Text</span>
+            <button class="close-panel">✕</button>
+        </div>
+        <div class="text-input-group">
+            <input type="text" id="text-entry" class="text-input" placeholder="Type text here...">
+            <button class="btn-primary" id="btn-add-text">Add</button>
+        </div>
+        <div class="grid-options">
+            <div class="opt-card" data-font="Arial">Sans</div>
+            <div class="opt-card" data-font="Georgia" style="font-family: Georgia;">Serif</div>
+            <div class="opt-card" data-font="Courier New" style="font-family: 'Courier New';">Mono</div>
+            <div class="opt-card" data-font="Trebuchet MS" style="font-family: 'Trebuchet MS';">Modern</div>
+        </div>
     </div>
 
-    <!-- Actions -->
-    <div class="flex items-center space-x-2">
-      <button id="btnClear" class="p-2 text-slate-400 hover:text-rose-400 active:scale-95 transition" title="Clear Canvas">
-        <i data-lucide="rotate-ccw" class="w-5 h-5"></i>
-      </button>
-      <button id="btnExportPNG" class="flex items-center space-x-1.5 bg-indigo-600 active:bg-indigo-700 text-white text-xs font-semibold px-3 py-2 rounded-xl shadow-lg shadow-indigo-600/30 active:scale-95 transition">
-        <i data-lucide="download" class="w-4 h-4"></i>
-        <span>Save PNG</span>
-      </button>
-    </div>
-  </header>
-
-  <!-- Center Workspace (Artboard Stage) -->
-  <main class="flex-1 workspace-bg relative flex items-center justify-center p-4 overflow-hidden">
-    
-    <!-- PURE WHITE ARTBOARD PAPER CANVAS -->
-    <div id="artboardContainer" class="relative flex flex-col items-center justify-center">
-      <div id="artboard" class="relative bg-white shadow-2xl transition-all duration-150 origin-center rounded-sm overflow-hidden" style="width: 340px; height: 340px; background-color: #ffffff; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);">
-        <!-- Elements rendering area -->
-        <div id="canvasElements" class="absolute inset-0 w-full h-full"></div>
-      </div>
+    <!-- Slide-up Panel: Colors -->
+    <div class="control-panel" id="panel-colors">
+        <div class="panel-header">
+            <span class="panel-title">Color Palette</span>
+            <button class="close-panel">✕</button>
+        </div>
+        <div class="color-grid" id="color-palette"></div>
     </div>
 
-    <!-- Floating Selection Quick Action Bar (Appears when item selected) -->
-    <div id="selectionOverlay" class="absolute top-3 left-1/2 -translate-x-1/2 bg-slate-900/90 border border-slate-700/80 backdrop-blur-md px-3 py-1.5 rounded-full shadow-2xl flex items-center space-x-3 text-xs z-30 transition-all duration-200 opacity-0 pointer-events-none transform -translate-y-2">
-      <button id="btnLayerUp" class="p-1.5 text-slate-300 hover:text-white" title="Bring Forward"><i data-lucide="arrow-up" class="w-4 h-4"></i></button>
-      <button id="btnLayerDown" class="p-1.5 text-slate-300 hover:text-white" title="Send Backward"><i data-lucide="arrow-down" class="w-4 h-4"></i></button>
-      <div class="h-4 w-px bg-slate-700"></div>
-      <button id="btnDuplicate" class="p-1.5 text-indigo-400 hover:text-indigo-300" title="Duplicate"><i data-lucide="copy" class="w-4 h-4"></i></button>
-      <button id="btnDelete" class="p-1.5 text-rose-400 hover:text-rose-300" title="Delete"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+    <!-- Slide-up Panel: Shapes -->
+    <div class="control-panel" id="panel-shapes">
+        <div class="panel-header">
+            <span class="panel-title">Shapes & Lines</span>
+            <button class="close-panel">✕</button>
+        </div>
+        <div class="grid-options" id="shapes-list"></div>
     </div>
-  </main>
 
-  <!-- Slide-up Tool Drawer Panel -->
-  <div id="drawerPanel" class="bg-slate-900/95 border-t border-slate-800 backdrop-blur-md z-20 transition-all duration-300 overflow-hidden max-h-0">
-    <div class="p-4 max-w-md mx-auto relative">
-      
-      <!-- Close panel button -->
-      <button id="btnCloseDrawer" class="absolute top-3 right-3 p-1 text-slate-400 hover:text-white">
-        <i data-lucide="x" class="w-5 h-5"></i>
-      </button>
-
-      <!-- 1. TEXT PANEL -->
-      <div id="panel-text" class="tool-panel hidden space-y-3">
-        <div class="flex items-center justify-between">
-          <h3 class="text-xs font-bold uppercase tracking-wider text-indigo-400">Text Tools</h3>
-          <button id="btnAddText" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-3 py-1.5 rounded-lg flex items-center gap-1 active:scale-95 transition">
-            <i data-lucide="plus" class="w-4 h-4"></i> Add Text
-          </button>
+    <!-- Slide-up Panel: Icons & Logos -->
+    <div class="control-panel" id="panel-logos">
+        <div class="panel-header">
+            <span class="panel-title">Logos & Social Icons</span>
+            <button class="close-panel">✕</button>
         </div>
-
-        <!-- Keyboard input box for text editing -->
-        <div>
-          <label class="text-[10px] text-slate-400 uppercase font-semibold mb-1 block">Write Something (Keyboard)</label>
-          <input type="text" id="textInput" placeholder="Type text here..." class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
-        </div>
-
-        <!-- Quick Size Presets -->
-        <div>
-          <label class="text-[10px] text-slate-400 uppercase font-semibold mb-1 block">Text Size</label>
-          <div class="grid grid-cols-4 gap-1.5 mb-2">
-            <button data-size="16" class="btn-text-size bg-slate-800 border border-slate-700 rounded-lg py-1 text-xs text-slate-300 active:bg-indigo-600">Small</button>
-            <button data-size="28" class="btn-text-size bg-slate-800 border border-slate-700 rounded-lg py-1 text-xs text-slate-300 active:bg-indigo-600">Medium</button>
-            <button data-size="42" class="btn-text-size bg-slate-800 border border-slate-700 rounded-lg py-1 text-xs text-slate-300 active:bg-indigo-600">Big</button>
-            <button data-size="60" class="btn-text-size bg-slate-800 border border-slate-700 rounded-lg py-1 text-xs text-slate-300 active:bg-indigo-600">Huge</button>
-          </div>
-          <input type="range" id="textSizeSlider" min="10" max="90" value="28" class="w-full accent-indigo-500">
-        </div>
-
-        <!-- Font Family Options -->
-        <div>
-          <label class="text-[10px] text-slate-400 uppercase font-semibold mb-1 block">Font Styles</label>
-          <div class="grid grid-cols-3 gap-1.5">
-            <button data-font="Inter" class="btn-font bg-slate-800 border border-slate-700 rounded-lg p-2 text-xs font-sans text-slate-200 text-center">Sans Modern</button>
-            <button data-font="Cinzel" class="btn-font bg-slate-800 border border-slate-700 rounded-lg p-2 text-xs font-serif text-slate-200 text-center">Cinzel Serif</button>
-            <button data-font="Pacifico" class="btn-font bg-slate-800 border border-slate-700 rounded-lg p-2 text-xs font-cursive text-slate-200 text-center">Cursive Script</button>
-            <button data-font="Space Grotesk" class="btn-font bg-slate-800 border border-slate-700 rounded-lg p-2 text-xs font-mono text-slate-200 text-center">Tech Grotesk</button>
-            <button data-font="Montserrat" class="btn-font bg-slate-800 border border-slate-700 rounded-lg p-2 text-xs font-bold text-slate-200 text-center">Bold Heavy</button>
-            <button data-font="Fredoka" class="btn-font bg-slate-800 border border-slate-700 rounded-lg p-2 text-xs font-rounded text-slate-200 text-center">Playful</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- 2. COLORS PANEL -->
-      <div id="panel-colors" class="tool-panel hidden space-y-3">
-        <h3 class="text-xs font-bold uppercase tracking-wider text-indigo-400">20+ Color Palette</h3>
-        <p class="text-[11px] text-slate-400">Tap a color to apply to selected item or paper:</p>
-        
-        <!-- Palette swatches including Metallic Gold -->
-        <div class="grid grid-cols-5 gap-2.5 max-h-48 overflow-y-auto p-1" id="colorsGrid"></div>
-      </div>
-
-      <!-- 3. SHAPES PANEL -->
-      <div id="panel-shapes" class="tool-panel hidden space-y-3">
-        <h3 class="text-xs font-bold uppercase tracking-wider text-indigo-400">Insert Shapes</h3>
-        <div class="grid grid-cols-3 gap-2.5">
-          <button data-shape="square" class="btn-add-shape bg-slate-800 border border-slate-700 rounded-xl p-3 flex flex-col items-center gap-1 hover:border-indigo-500 active:scale-95 transition">
-            <div class="w-6 h-6 bg-indigo-500 rounded-sm"></div>
-            <span class="text-[10px] text-slate-300">Square</span>
-          </button>
-          <button data-shape="circle" class="btn-add-shape bg-slate-800 border border-slate-700 rounded-xl p-3 flex flex-col items-center gap-1 hover:border-indigo-500 active:scale-95 transition">
-            <div class="w-6 h-6 bg-indigo-500 rounded-full"></div>
-            <span class="text-[10px] text-slate-300">Circle</span>
-          </button>
-          <button data-shape="triangle" class="btn-add-shape bg-slate-800 border border-slate-700 rounded-xl p-3 flex flex-col items-center gap-1 hover:border-indigo-500 active:scale-95 transition">
-            <div class="w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent border-b-[20px] border-b-indigo-500"></div>
-            <span class="text-[10px] text-slate-300">Triangle</span>
-          </button>
-          <button data-shape="right-triangle" class="btn-add-shape bg-slate-800 border border-slate-700 rounded-xl p-3 flex flex-col items-center gap-1 hover:border-indigo-500 active:scale-95 transition">
-            <div class="w-0 h-0 border-r-[20px] border-r-transparent border-b-[20px] border-b-indigo-500"></div>
-            <span class="text-[10px] text-slate-300">Right Angle</span>
-          </button>
-          <button data-shape="star" class="btn-add-shape bg-slate-800 border border-slate-700 rounded-xl p-3 flex flex-col items-center gap-1 hover:border-indigo-500 active:scale-95 transition">
-            <div class="w-6 h-6 bg-indigo-500 shape-star"></div>
-            <span class="text-[10px] text-slate-300">Star</span>
-          </button>
-          <button data-shape="hexagon" class="btn-add-shape bg-slate-800 border border-slate-700 rounded-xl p-3 flex flex-col items-center gap-1 hover:border-indigo-500 active:scale-95 transition">
-            <div class="w-6 h-6 bg-indigo-500 shape-hexagon"></div>
-            <span class="text-[10px] text-slate-300">Hexagon</span>
-          </button>
-          <button data-shape="line" class="btn-add-shape bg-slate-800 border border-slate-700 rounded-xl p-3 flex flex-col items-center gap-1 hover:border-indigo-500 active:scale-95 transition">
-            <div class="w-6 h-1 bg-indigo-500 my-2 rounded"></div>
-            <span class="text-[10px] text-slate-300">Line</span>
-          </button>
-          <button data-shape="heart" class="btn-add-shape bg-slate-800 border border-slate-700 rounded-xl p-3 flex flex-col items-center gap-1 hover:border-indigo-500 active:scale-95 transition">
-            <div class="w-6 h-6 bg-rose-500 shape-heart"></div>
-            <span class="text-[10px] text-slate-300">Heart</span>
-          </button>
-          <button data-shape="ring" class="btn-add-shape bg-slate-800 border border-slate-700 rounded-xl p-3 flex flex-col items-center gap-1 hover:border-indigo-500 active:scale-95 transition">
-            <div class="w-6 h-6 border-4 border-indigo-500 rounded-full"></div>
-            <span class="text-[10px] text-slate-300">Ring</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- 4. LOGOS PANEL -->
-      <div id="panel-logos" class="tool-panel hidden space-y-3">
-        <h3 class="text-xs font-bold uppercase tracking-wider text-indigo-400">Preset Logo Builds</h3>
-        <p class="text-[11px] text-slate-400">Tap a built-in logo preset to load on paper:</p>
-        <div class="grid grid-cols-2 gap-2.5">
-          <button data-preset="luxury" class="btn-preset bg-slate-800 border border-slate-700 rounded-xl p-3 text-left hover:border-amber-500 transition">
-            <div class="font-serif font-bold text-amber-400 text-sm">LUXURY CREST</div>
-            <div class="text-[9px] text-slate-400">Gold Ring & Serif Badge</div>
-          </button>
-          <button data-preset="cyber" class="btn-preset bg-slate-800 border border-slate-700 rounded-xl p-3 text-left hover:border-cyan-500 transition">
-            <div class="font-mono font-bold text-cyan-400 text-sm">CYBER TECH</div>
-            <div class="text-[9px] text-slate-400">Futuristic Icon & Bold Text</div>
-          </button>
-          <button data-preset="minimal" class="btn-preset bg-slate-800 border border-slate-700 rounded-xl p-3 text-left hover:border-indigo-500 transition">
-            <div class="font-sans font-extrabold text-indigo-400 text-sm">MINIMALIST</div>
-            <div class="text-[9px] text-slate-400">Modern Clean Monogram</div>
-          </button>
-          <button data-preset="nature" class="btn-preset bg-slate-800 border border-slate-700 rounded-xl p-3 text-left hover:border-emerald-500 transition">
-            <div class="font-bold text-emerald-400 text-sm">ECO BOTANICAL</div>
-            <div class="text-[9px] text-slate-400">Natural Leaf Motif</div>
-          </button>
-        </div>
-      </div>
-
-      <!-- 5. BACKGROUND PANEL -->
-      <div id="panel-bg" class="tool-panel hidden space-y-3">
-        <h3 class="text-xs font-bold uppercase tracking-wider text-indigo-400">Artboard Paper Background</h3>
-        <div class="flex items-center space-x-3">
-          <button id="btnPaperWhite" class="flex-1 py-2 rounded-xl bg-white text-slate-900 font-bold text-xs border border-slate-300">Pure White</button>
-          <button id="btnPaperDark" class="flex-1 py-2 rounded-xl bg-slate-900 text-white font-bold text-xs border border-slate-700">Dark Paper</button>
-          <button id="btnPaperCream" class="flex-1 py-2 rounded-xl bg-[#FFFDD0] text-slate-900 font-bold text-xs border border-amber-200">Warm Cream</button>
-        </div>
-      </div>
-
-      <!-- 6. LAYERS PANEL -->
-      <div id="panel-layers" class="tool-panel hidden space-y-3">
-        <h3 class="text-xs font-bold uppercase tracking-wider text-indigo-400">Layers Stack</h3>
-        <div id="layersList" class="space-y-1.5 max-h-40 overflow-y-auto"></div>
-      </div>
-
+        <div class="grid-options" id="logos-list"></div>
     </div>
-  </div>
 
-  <!-- Bottom Navigation Dock (Canva / PicsArt Style) -->
-  <nav class="h-16 bg-slate-900 border-t border-slate-800 px-2 flex items-center justify-around z-30 shrink-0">
-    <button data-target="text" class="nav-dock-btn flex flex-col items-center justify-center min-w-[54px] py-1 text-slate-400 hover:text-indigo-400 transition">
-      <i data-lucide="type" class="w-5 h-5"></i>
-      <span class="text-[10px] font-medium mt-1">Text</span>
-    </button>
-    <button data-target="colors" class="nav-dock-btn flex flex-col items-center justify-center min-w-[54px] py-1 text-slate-400 hover:text-indigo-400 transition">
-      <i data-lucide="palette" class="w-5 h-5"></i>
-      <span class="text-[10px] font-medium mt-1">Colors</span>
-    </button>
-    <button data-target="shapes" class="nav-dock-btn flex flex-col items-center justify-center min-w-[54px] py-1 text-slate-400 hover:text-indigo-400 transition">
-      <i data-lucide="shapes" class="w-5 h-5"></i>
-      <span class="text-[10px] font-medium mt-1">Shapes</span>
-    </button>
-    <button data-target="logos" class="nav-dock-btn flex flex-col items-center justify-center min-w-[54px] py-1 text-slate-400 hover:text-indigo-400 transition">
-      <i data-lucide="sparkles" class="w-5 h-5"></i>
-      <span class="text-[10px] font-medium mt-1">Logos</span>
-    </button>
-    <button data-target="bg" class="nav-dock-btn flex flex-col items-center justify-center min-w-[54px] py-1 text-slate-400 hover:text-indigo-400 transition">
-      <i data-lucide="square" class="w-5 h-5"></i>
-      <span class="text-[10px] font-medium mt-1">Paper</span>
-    </button>
-    <button data-target="layers" class="nav-dock-btn flex flex-col items-center justify-center min-w-[54px] py-1 text-slate-400 hover:text-indigo-400 transition">
-      <i data-lucide="layers" class="w-5 h-5"></i>
-      <span class="text-[10px] font-medium mt-1">Layers</span>
-    </button>
-  </nav>
+    <!-- Slide-up Panel: Photos & Uploads -->
+    <div class="control-panel" id="panel-photo">
+        <div class="panel-header">
+            <span class="panel-title">Add Photo</span>
+            <button class="close-panel">✕</button>
+        </div>
+        <button class="btn-primary" style="width:100%; justify-content:center; padding: 14px;" onclick="document.getElementById('img-upload').click()">📷 Upload Image from Phone</button>
+        <input type="file" id="img-upload" class="hidden-file-input" accept="image/*">
+    </div>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      
-      // Application State
-      const state = {
-        elements: [],
-        selectedId: null,
-        paperColor: '#ffffff',
-        // 20 rich colors requested including Metallic Gold
-        colors: [
-          '#D4AF37', // Metallic Gold
-          '#B76E79', // Rose Gold
-          '#00FFFF', // Cyber Cyan
-          '#39FF14', // Neon Green
-          '#8A2BE2', // Deep Violet
-          '#FF4500', // Sunset Orange
-          '#000000', // Pure Black
-          '#FFFFFF', // Crisp White
-          '#4F46E5', // Indigo
-          '#EC4899', // Pink
-          '#10B981', // Emerald
-          '#F59E0B', // Amber
-          '#EF4444', // Red
-          '#06B6D4', // Sky Cyan
-          '#6366F1', // Lavender Blue
-          '#14B8A6', // Teal
-          '#8B5CF6', // Purple
-          '#D97706', // Gold Yellow
-          '#334155', // Slate Gray
-          '#475569'  // Cool Gray
-        ]
-      };
+    <!-- Bottom Dock Navigation -->
+    <nav class="bottom-dock">
+        <button class="dock-item" data-target="panel-text">
+            <div class="dock-icon">T</div>
+            <span>Text</span>
+        </button>
+        <button class="dock-item" data-target="panel-colors">
+            <div class="dock-icon">🎨</div>
+            <span>Color</span>
+        </button>
+        <button class="dock-item" data-target="panel-shapes">
+            <div class="dock-icon">⬛</div>
+            <span>Shapes</span>
+        </button>
+        <button class="dock-item" data-target="panel-logos">
+            <div class="dock-icon">⚡</div>
+            <span>Logos</span>
+        </button>
+        <button class="dock-item" data-target="panel-photo">
+            <div class="dock-icon">🖼️</div>
+            <span>Photo</span>
+        </button>
+    </nav>
 
-      const artboard = document.getElementById('artboard');
-      const canvasElements = document.getElementById('canvasElements');
-      const drawerPanel = document.getElementById('drawerPanel');
-      const selectionOverlay = document.getElementById('selectionOverlay');
+    <!-- HTML2Canvas Library for PNG Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
-      // Populate Color Swatches Grid
-      function initColorGrid() {
-        const grid = document.getElementById('colorsGrid');
-        grid.innerHTML = '';
-        state.colors.forEach(col => {
-          const btn = document.createElement('button');
-          btn.className = 'w-10 h-10 rounded-full border border-slate-700/60 shadow-md transition active:scale-95 mx-auto';
-          btn.style.backgroundColor = col;
-          btn.addEventListener('click', () => applyColorToSelected(col));
-          grid.appendChild(btn);
-        });
-      }
+    <script>
+        const artboard = document.getElementById('artboard');
+        let selectedElement = null;
+        let activeColor = '#D4AF37'; // Default Metallic Gold
 
-      // Render Canvas Elements
-      function renderCanvas() {
-        canvasElements.innerHTML = '';
+        // 20+ Swatches Palette
+        const paletteColors = [
+            '#D4AF37', '#B76E79', '#FF2A6D', '#05D9E8', '#00FF66', '#FF9900',
+            '#9B51E0', '#2D9CDB', '#EB5757', '#F2C94C', '#2196F3', '#E91E63',
+            '#000000', '#333333', '#888888', '#FFFFFF', '#1A237E', '#004D40'
+        ];
 
-        state.elements.forEach(elem => {
-          const isSelected = elem.id === state.selectedId;
-          const wrapper = document.createElement('div');
-          wrapper.id = elem.id;
-          wrapper.className = `absolute cursor-move touch-none flex items-center justify-center ${isSelected ? 'element-selected' : ''}`;
-          
-          wrapper.style.left = `${elem.x}px`;
-          wrapper.style.top = `${elem.y}px`;
-          wrapper.style.width = `${elem.width}px`;
-          wrapper.style.height = `${elem.height}px`;
-
-          // Touch and Mouse Dragging
-          const handleDrag = (e) => {
-            e.stopPropagation();
-            selectElement(elem.id);
-
-            const startX = e.touches ? e.touches[0].clientX : e.clientX;
-            const startY = e.touches ? e.touches[0].clientY : e.clientY;
-            const origX = elem.x;
-            const origY = elem.y;
-
-            function onMove(e) {
-              const curX = e.touches ? e.touches[0].clientX : e.clientX;
-              const curY = e.touches ? e.touches[0].clientY : e.clientY;
-              elem.x = Math.round(origX + (curX - startX));
-              elem.y = Math.round(origY + (curY - startY));
-              renderCanvas();
-            }
-
-            function onEnd() {
-              document.removeEventListener('mousemove', onMove);
-              document.removeEventListener('mouseup', onEnd);
-              document.removeEventListener('touchmove', onMove);
-              document.removeEventListener('touchend', onEnd);
-              renderLayersList();
-            }
-
-            document.addEventListener('mousemove', onMove);
-            document.addEventListener('mouseup', onEnd);
-            document.addEventListener('touchmove', onMove);
-            document.addEventListener('touchend', onEnd);
-          };
-
-          wrapper.addEventListener('mousedown', handleDrag);
-          wrapper.addEventListener('touchstart', handleDrag, { passive: true });
-
-          // Types: Text, Shape
-          if (elem.type === 'text') {
-            const txt = document.createElement('div');
-            txt.className = 'w-full h-full flex items-center justify-center text-center font-bold break-words leading-tight';
-            txt.style.fontFamily = elem.fontFamily || 'Inter';
-            txt.style.fontSize = `${elem.fontSize}px`;
-            txt.style.color = elem.color || '#000000';
-            txt.innerText = elem.text;
-            wrapper.appendChild(txt);
-          } else if (elem.type === 'shape') {
-            const shp = document.createElement('div');
-            shp.className = 'w-full h-full flex items-center justify-center';
-            
-            if (elem.shape === 'square') {
-              shp.style.backgroundColor = elem.color;
-              shp.style.borderRadius = '6px';
-            } else if (elem.shape === 'circle') {
-              shp.style.backgroundColor = elem.color;
-              shp.style.borderRadius = '9999px';
-            } else if (elem.shape === 'triangle') {
-              shp.className = 'shape-triangle';
-              shp.style.color = elem.color;
-            } else if (elem.shape === 'right-triangle') {
-              shp.className = 'shape-right-triangle';
-              shp.style.color = elem.color;
-            } else if (elem.shape === 'star') {
-              shp.className = 'w-full h-full shape-star';
-              shp.style.backgroundColor = elem.color;
-            } else if (elem.shape === 'hexagon') {
-              shp.className = 'w-full h-full shape-hexagon';
-              shp.style.backgroundColor = elem.color;
-            } else if (elem.shape === 'heart') {
-              shp.className = 'w-full h-full shape-heart';
-              shp.style.backgroundColor = elem.color;
-            } else if (elem.shape === 'line') {
-              shp.className = 'w-full h-2 rounded';
-              shp.style.backgroundColor = elem.color;
-            } else if (elem.shape === 'ring') {
-              shp.className = 'w-full h-full rounded-full';
-              shp.style.border = `6px solid ${elem.color}`;
-            }
-
-            wrapper.appendChild(shp);
-          }
-
-          canvasElements.appendChild(wrapper);
+        // Populate Colors Grid
+        const colorPaletteContainer = document.getElementById('color-palette');
+        paletteColors.forEach(color => {
+            const swatch = document.createElement('div');
+            swatch.className = 'color-swatch';
+            swatch.style.backgroundColor = color;
+            swatch.onclick = () => {
+                activeColor = color;
+                if (selectedElement) {
+                    if (selectedElement.dataset.type === 'text') {
+                        selectedElement.style.color = color;
+                    } else if (selectedElement.dataset.type === 'shape') {
+                        const svg = selectedElement.querySelector('svg');
+                        if (svg) svg.setAttribute('fill', color);
+                    }
+                }
+            };
+            colorPaletteContainer.appendChild(swatch);
         });
 
-        updateSelectionOverlay();
-      }
+        // Dock Panel Toggling
+        document.querySelectorAll('.dock-item').forEach(btn => {
+            btn.onclick = () => {
+                const targetPanel = document.getElementById(btn.dataset.target);
+                const isOpen = targetPanel.classList.contains('open');
+                document.querySelectorAll('.control-panel').forEach(p => p.classList.remove('open'));
+                document.querySelectorAll('.dock-item').forEach(d => d.classList.remove('active'));
+                
+                if (!isOpen) {
+                    targetPanel.classList.add('open');
+                    btn.classList.add('active');
+                }
+            };
+        });
 
-      function selectElement(id) {
-        state.selectedId = id;
-        renderCanvas();
-        
-        // Sync text input keyboard box
-        const elem = state.elements.find(e => e.id === id);
-        if (elem && elem.type === 'text') {
-          document.getElementById('textInput').value = elem.text;
-          document.getElementById('textSizeSlider').value = elem.fontSize;
-        }
-      }
+        document.querySelectorAll('.close-panel').forEach(btn => {
+            btn.onclick = () => {
+                document.querySelectorAll('.control-panel').forEach(p => p.classList.remove('open'));
+                document.querySelectorAll('.dock-item').forEach(d => d.classList.remove('active'));
+            };
+        });
 
-      function updateSelectionOverlay() {
-        if (state.selectedId) {
-          selectionOverlay.classList.remove('opacity-0', 'pointer-events-none', '-translate-y-2');
-        } else {
-          selectionOverlay.classList.add('opacity-0', 'pointer-events-none', '-translate-y-2');
-        }
-      }
-
-      function applyColorToSelected(color) {
-        if (state.selectedId) {
-          const elem = state.elements.find(e => e.id === state.selectedId);
-          if (elem) elem.color = color;
-        } else {
-          // If nothing selected, set paper background color
-          artboard.style.backgroundColor = color;
-        }
-        renderCanvas();
-      }
-
-      // Add Text
-      document.getElementById('btnAddText').addEventListener('click', () => {
-        const textVal = document.getElementById('textInput').value.trim() || 'Tap to Write';
-        const newElem = {
-          id: 'elem_' + Date.now(),
-          type: 'text',
-          text: textVal,
-          fontSize: 28,
-          fontFamily: 'Inter',
-          color: '#000000',
-          x: 70, y: 140,
-          width: 200, height: 60
+        // Add Text Logic
+        document.getElementById('btn-add-text').onclick = () => {
+            const val = document.getElementById('text-entry').value || 'Mimi Designer';
+            const el = createCanvasElement('text');
+            el.innerText = val;
+            el.style.fontSize = '36px';
+            el.style.color = activeColor;
+            el.style.fontWeight = 'bold';
+            artboard.appendChild(el);
+            selectElement(el);
         };
-        state.elements.push(newElem);
-        selectElement(newElem.id);
-      });
 
-      // Keyboard text typing listener
-      document.getElementById('textInput').addEventListener('input', (e) => {
-        const elem = state.elements.find(e => e.id === state.selectedId);
-        if (elem && elem.type === 'text') {
-          elem.text = e.target.value;
-          renderCanvas();
+        // Create Generic Base Element
+        function createCanvasElement(type) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'canvas-element';
+            wrapper.dataset.type = type;
+            wrapper.style.left = '350px';
+            wrapper.style.top = '350px';
+
+            // Resize and Rotate Handles
+            const handleSE = document.createElement('div');
+            handleSE.className = 'handle handle-se';
+            const handleRot = document.createElement('div');
+            handleRot.className = 'handle handle-rot';
+
+            wrapper.appendChild(handleSE);
+            wrapper.appendChild(handleRot);
+
+            makeDraggable(wrapper);
+            wrapper.onclick = (e) => {
+                e.stopPropagation();
+                selectElement(wrapper);
+            };
+
+            return wrapper;
         }
-      });
 
-      // Text size buttons
-      document.querySelectorAll('.btn-text-size').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const size = parseInt(btn.getAttribute('data-size'));
-          document.getElementById('textSizeSlider').value = size;
-          const elem = state.elements.find(e => e.id === state.selectedId);
-          if (elem && elem.type === 'text') {
-            elem.fontSize = size;
-            renderCanvas();
-          }
-        });
-      });
-
-      // Text size slider
-      document.getElementById('textSizeSlider').addEventListener('input', (e) => {
-        const elem = state.elements.find(e => e.id === state.selectedId);
-        if (elem && elem.type === 'text') {
-          elem.fontSize = parseInt(e.target.value);
-          renderCanvas();
+        function selectElement(el) {
+            document.querySelectorAll('.canvas-element').forEach(e => e.classList.remove('selected'));
+            selectedElement = el;
+            if (el) el.classList.add('selected');
         }
-      });
 
-      // Fonts options
-      document.querySelectorAll('.btn-font').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const font = btn.getAttribute('data-font');
-          const elem = state.elements.find(e => e.id === state.selectedId);
-          if (elem && elem.type === 'text') {
-            elem.fontFamily = font;
-            renderCanvas();
-          }
-        });
-      });
+        artboard.onclick = () => selectElement(null);
 
-      // Add Shape
-      document.querySelectorAll('.btn-add-shape').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const shapeType = btn.getAttribute('data-shape');
-          const newElem = {
-            id: 'elem_' + Date.now(),
-            type: 'shape',
-            shape: shapeType,
-            color: '#4F46E5',
-            x: 120, y: 120,
-            width: 100, height: 100
-          };
-          if (shapeType === 'line') { newElem.width = 160; newElem.height = 20; }
-          state.elements.push(newElem);
-          selectElement(newElem.id);
-        });
-      });
+        // Touch and Mouse Dragging
+        function makeDraggable(el) {
+            let isDragging = false, startX, startY, initialLeft, initialTop;
 
-      // Built-in Logo Presets
-      document.querySelectorAll('.btn-preset').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const preset = btn.getAttribute('data-preset');
-          state.elements = [];
-          if (preset === 'luxury') {
-            state.elements.push(
-              { id: '1', type: 'shape', shape: 'ring', color: '#D4AF37', x: 120, y: 70, width: 100, height: 100 },
-              { id: '2', type: 'text', text: 'M', fontSize: 48, fontFamily: 'Cinzel', color: '#D4AF37', x: 120, y: 85, width: 100, height: 60 },
-              { id: '3', type: 'text', text: 'MIMI CREST', fontSize: 20, fontFamily: 'Cinzel', color: '#000000', x: 70, y: 190, width: 200, height: 40 }
-            );
-          } else if (preset === 'cyber') {
-            state.elements.push(
-              { id: '1', type: 'shape', shape: 'hexagon', color: '#00FFFF', x: 120, y: 70, width: 100, height: 100 },
-              { id: '2', type: 'text', text: 'CYBER', fontSize: 28, fontFamily: 'Space Grotesk', color: '#000000', x: 70, y: 190, width: 200, height: 40 }
-            );
-          } else if (preset === 'minimal') {
-            state.elements.push(
-              { id: '1', type: 'shape', shape: 'square', color: '#4F46E5', x: 130, y: 80, width: 80, height: 80 },
-              { id: '2', type: 'text', text: 'STUDIO', fontSize: 24, fontFamily: 'Montserrat', color: '#000000', x: 70, y: 180, width: 200, height: 40 }
-            );
-          } else if (preset === 'nature') {
-            state.elements.push(
-              { id: '1', type: 'shape', shape: 'circle', color: '#10B981', x: 120, y: 70, width: 100, height: 100 },
-              { id: '2', type: 'text', text: 'NATURAL', fontSize: 22, fontFamily: 'Fredoka', color: '#000000', x: 70, y: 190, width: 200, height: 40 }
-            );
-          }
-          selectElement(state.elements[0].id);
-        });
-      });
+            const onStart = (e) => {
+                isDragging = true;
+                const point = e.touches ? e.touches[0] : e;
+                startX = point.clientX;
+                startY = point.clientY;
+                initialLeft = parseInt(el.style.left) || 0;
+                initialTop = parseInt(el.style.top) || 0;
+            };
 
-      // Background options
-      document.getElementById('btnPaperWhite').addEventListener('click', () => artboard.style.backgroundColor = '#ffffff');
-      document.getElementById('btnPaperDark').addEventListener('click', () => artboard.style.backgroundColor = '#0f172a');
-      document.getElementById('btnPaperCream').addEventListener('click', () => artboard.style.backgroundColor = '#FFFDD0');
+            const onMove = (e) => {
+                if (!isDragging) return;
+                const point = e.touches ? e.touches[0] : e;
+                const dx = point.clientX - startX;
+                const dy = point.clientY - startY;
+                el.style.left = (initialLeft + dx) + 'px';
+                el.style.top = (initialTop + dy) + 'px';
+            };
 
-      // Layers Render
-      function renderLayersList() {
-        const list = document.getElementById('layersList');
-        list.innerHTML = '';
-        state.elements.slice().reverse().forEach(elem => {
-          const item = document.createElement('div');
-          item.className = `p-2 rounded-lg text-xs flex justify-between bg-slate-800 text-slate-200 cursor-pointer ${elem.id === state.selectedId ? 'border border-indigo-500' : ''}`;
-          item.innerText = `${elem.type.toUpperCase()}: ${elem.text || elem.shape}`;
-          item.addEventListener('click', () => selectElement(elem.id));
-          list.appendChild(item);
-        });
-      }
+            const onEnd = () => { isDragging = false; };
 
-      // Context Quick Bar Actions
-      document.getElementById('btnDelete').addEventListener('click', () => {
-        if (state.selectedId) {
-          state.elements = state.elements.filter(e => e.id !== state.selectedId);
-          state.selectedId = null;
-          renderCanvas();
+            el.addEventListener('mousedown', onStart);
+            el.addEventListener('touchstart', onStart);
+            window.addEventListener('mousemove', onMove);
+            window.addEventListener('touchmove', onMove);
+            window.addEventListener('mouseup', onEnd);
+            window.addEventListener('touchend', onEnd);
         }
-      });
 
-      document.getElementById('btnDuplicate').addEventListener('click', () => {
-        const elem = state.elements.find(e => e.id === state.selectedId);
-        if (elem) {
-          const clone = JSON.parse(JSON.stringify(elem));
-          clone.id = 'elem_' + Date.now();
-          clone.x += 15; clone.y += 15;
-          state.elements.push(clone);
-          selectElement(clone.id);
-        }
-      });
+        // Image Upload Logic
+        document.getElementById('img-upload').onchange = (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const el = createCanvasElement('image');
+                    const img = document.createElement('img');
+                    img.src = event.target.result;
+                    img.style.maxWidth = '250px';
+                    img.style.pointerEvents = 'none';
+                    el.appendChild(img);
+                    artboard.appendChild(el);
+                    selectElement(el);
+                };
+                reader.readAsDataURL(file);
+            }
+        };
 
-      // Bottom Dock Drawer Navigation Handler
-      document.querySelectorAll('.nav-dock-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const target = btn.getAttribute('data-target');
-          
-          document.querySelectorAll('.tool-panel').forEach(p => p.classList.add('hidden'));
-          document.getElementById(`panel-${target}`).classList.remove('hidden');
+        // Export Canvas to PNG Image
+        document.getElementById('btn-export').onclick = () => {
+            selectElement(null);
+            html2canvas(artboard).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'mimi-design.png';
+                link.href = canvas.toDataURL();
+                link.click();
+            });
+        };
 
-          drawerPanel.style.maxHeight = '280px';
-          renderLayersList();
-        });
-      });
-
-      document.getElementById('btnCloseDrawer').addEventListener('click', () => {
-        drawerPanel.style.maxHeight = '0px';
-      });
-
-      // Clear Canvas
-      document.getElementById('btnClear').addEventListener('click', () => {
-        state.elements = [];
-        state.selectedId = null;
-        renderCanvas();
-      });
-
-      // Download PNG
-      document.getElementById('btnExportPNG').addEventListener('click', () => {
-        const currentSel = state.selectedId;
-        state.selectedId = null;
-        renderCanvas();
-
-        html2canvas(artboard, { scale: 2 }).then(canvas => {
-          const link = document.createElement('a');
-          link.download = 'mimi-designer.png';
-          link.href = canvas.toDataURL('image/png');
-          link.click();
-
-          state.selectedId = currentSel;
-          renderCanvas();
-        });
-      });
-
-      // Initialize
-      initColorGrid();
-      lucide.createIcons();
-    });
-  </script>
+        // Clear Canvas
+        document.getElementById('btn-clear').onclick = () => {
+            if (confirm("Clear all items from artboard?")) {
+                artboard.innerHTML = '';
+            }
+        };
+    </script>
 </body>
 </html>
-```
