@@ -1,717 +1,678 @@
 ```html
 <!DOCTYPE html>
-<html lang="en" class="h-full bg-slate-950 text-slate-100">
+<html lang="en" class="h-full bg-slate-950 text-slate-100 select-none">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Mimi Designer - Graphic & Logo Studio</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        brand: {
-                            500: '#6366f1',
-                            600: '#4f46e5',
-                            700: '#4338ca'
-                        }
-                    }
-                }
-            }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Mimi Designer - Mobile Graphic Studio</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { 500: '#6366f1', 600: '#4f46e5' }
+          }
         }
-    </script>
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- html2canvas for downloading graphics -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Inter:wght@400;600;700&family=Montserrat:wght@700;900&family=Pacifico&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+      }
+    }
+  </script>
 
-    <style>
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #0f172a; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-        
-        /* Dark Studio Canvas Workspace */
-        .workspace-bg {
-            background-color: #121624;
-            background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1.5px, transparent 1.5px);
-            background-size: 24px 24px;
-        }
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- html2canvas for exporting PNG -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
-        /* Subtle grid pattern inside the white canvas when toggled */
-        .artboard-grid {
-            background-image: 
-                linear-gradient(to right, rgba(0, 0, 0, 0.06) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(0, 0, 0, 0.06) 1px, transparent 1px);
-            background-size: 20px 20px;
-        }
+  <!-- Google Fonts for Typography options -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Inter:wght@400;600;700&family=Montserrat:wght@700;900&family=Pacifico&family=Space+Grotesk:wght@700&family=Fredoka:wght@600&display=swap" rel="stylesheet">
 
-        .no-select { user-select: none; -webkit-user-select: none; }
-        
-        /* Object selection box */
-        .selected-box {
-            outline: 2px solid #6366f1;
-            outline-offset: 2px;
-        }
-    </style>
+  <style>
+    /* Custom mobile UI styling */
+    ::-webkit-scrollbar { display: none; }
+    * { -webkit-tap-highlight-color: transparent; }
+
+    .workspace-bg {
+      background-color: #0b0f19;
+      background-image: radial-gradient(rgba(255, 255, 255, 0.1) 1.5px, transparent 1.5px);
+      background-size: 20px 20px;
+    }
+
+    /* Selected element bounding box */
+    .element-selected {
+      outline: 2px dashed #6366f1;
+      outline-offset: 4px;
+    }
+
+    /* Custom CSS shapes */
+    .shape-triangle {
+      width: 0; height: 0;
+      border-left: 50px solid transparent;
+      border-right: 50px solid transparent;
+      border-bottom: 100px solid currentColor;
+    }
+
+    .shape-right-triangle {
+      width: 0; height: 0;
+      border-left: 0px solid transparent;
+      border-right: 100px solid transparent;
+      border-bottom: 100px solid currentColor;
+    }
+
+    .shape-star {
+      clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+    }
+
+    .shape-hexagon {
+      clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+    }
+
+    .shape-heart {
+      clip-path: polygon(50% 15%, 65% 0, 85% 0, 100% 20%, 100% 45%, 50% 95%, 0 45%, 0 20%, 15% 0, 35% 0);
+    }
+  </style>
 </head>
-<body class="h-full flex flex-col font-['Inter'] bg-slate-950 text-slate-100 overflow-hidden select-none">
+<body class="h-full flex flex-col font-['Inter'] bg-slate-950 text-slate-100 overflow-hidden touch-none">
 
-    <!-- Top Header Navigation -->
-    <header class="h-14 bg-slate-900 border-b border-slate-800 px-4 flex items-center justify-between z-30 shrink-0 shadow-md">
-        <div class="flex items-center space-x-3">
-            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-rose-500 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-                <i data-lucide="pen-tool" class="w-5 h-5 text-white"></i>
-            </div>
-            <div>
-                <h1 class="font-extrabold text-base tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-300 to-rose-400">
-                    Mimi Designer
-                </h1>
-                <p class="text-[10px] text-slate-400 font-medium leading-none hidden sm:block">Logo & Graphic Creation Studio</p>
-            </div>
-        </div>
-
-        <!-- Canvas View Controls -->
-        <div class="flex items-center space-x-2 bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700/60 text-xs">
-            <span class="text-slate-400 hidden sm:inline">Canvas:</span>
-            <span id="canvasDimText" class="font-mono text-indigo-300 font-semibold">500 × 500</span>
-            <span class="text-slate-600">|</span>
-            <button id="btnToggleGrid" class="hover:text-white p-1 rounded text-slate-400 transition" title="Toggle Grid Overlay">
-                <i data-lucide="grid" class="w-4 h-4"></i>
-            </button>
-            <span class="text-slate-600">|</span>
-            <button id="btnZoomOut" class="hover:text-white p-1 rounded text-slate-400"><i data-lucide="zoom-out" class="w-4 h-4"></i></button>
-            <span id="zoomLevelText" class="font-mono text-slate-300 w-10 text-center">100%</span>
-            <button id="btnZoomIn" class="hover:text-white p-1 rounded text-slate-400"><i data-lucide="zoom-in" class="w-4 h-4"></i></button>
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="flex items-center space-x-2">
-            <button id="btnClearCanvas" class="p-2 text-slate-400 hover:text-rose-400 hover:bg-slate-800 rounded-lg transition" title="Clear Canvas">
-                <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
-            </button>
-            <div class="h-5 w-px bg-slate-800 mx-1"></div>
-            <button id="btnExportPNG" class="flex items-center space-x-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-3.5 py-2 rounded-lg transition shadow-md shadow-indigo-600/20 active:scale-95">
-                <i data-lucide="download" class="w-4 h-4"></i>
-                <span>Download PNG</span>
-            </button>
-        </div>
-    </header>
-
-    <!-- Main Application Body -->
-    <div class="flex-1 flex overflow-hidden relative">
-
-        <!-- Left Toolbar Navigation Tabs -->
-        <nav class="w-16 bg-slate-900 border-r border-slate-800 flex flex-col items-center py-3 space-y-3 shrink-0 z-20">
-            <button data-tab="templates" class="nav-tab p-2.5 rounded-xl text-indigo-400 bg-indigo-950/60 border border-indigo-800/50 flex flex-col items-center gap-1 hover:text-white transition w-12">
-                <i data-lucide="layout-template" class="w-5 h-5"></i>
-                <span class="text-[9px] font-medium">Presets</span>
-            </button>
-            <button data-tab="elements" class="nav-tab p-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 flex flex-col items-center gap-1 transition w-12">
-                <i data-lucide="shapes" class="w-5 h-5"></i>
-                <span class="text-[9px] font-medium">Shapes</span>
-            </button>
-            <button data-tab="icons" class="nav-tab p-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 flex flex-col items-center gap-1 transition w-12">
-                <i data-lucide="component" class="w-5 h-5"></i>
-                <span class="text-[9px] font-medium">Icons</span>
-            </button>
-            <button data-tab="text" class="nav-tab p-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 flex flex-col items-center gap-1 transition w-12">
-                <i data-lucide="type" class="w-5 h-5"></i>
-                <span class="text-[9px] font-medium">Text</span>
-            </button>
-            <button data-tab="colors" class="nav-tab p-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 flex flex-col items-center gap-1 transition w-12">
-                <i data-lucide="swatch-book" class="w-5 h-5"></i>
-                <span class="text-[9px] font-medium">Colors</span>
-            </button>
-            <button data-tab="layers" class="nav-tab p-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 flex flex-col items-center gap-1 transition w-12">
-                <i data-lucide="layers" class="w-5 h-5"></i>
-                <span class="text-[9px] font-medium">Layers</span>
-            </button>
-        </nav>
-
-        <!-- Tool Panels Sidebar -->
-        <aside id="drawerPanel" class="w-72 bg-slate-900/95 border-r border-slate-800 flex flex-col shrink-0 overflow-y-auto z-10">
-            
-            <!-- Logo Presets Tab -->
-            <div id="tab-templates" class="tab-pane p-4 space-y-4">
-                <h2 class="font-bold text-sm text-slate-200 uppercase tracking-wider">Logo Templates</h2>
-                <p class="text-xs text-slate-400">Tap a preset to load it on the white paper artboard:</p>
-                <div class="grid grid-cols-1 gap-3">
-                    <button data-preset="tech" class="btn-preset text-left p-3 rounded-xl bg-slate-800/60 border border-slate-700/60 hover:border-indigo-500 hover:bg-slate-800 transition flex items-center space-x-3">
-                        <div class="w-10 h-10 rounded-lg bg-slate-900 border border-indigo-500/40 flex items-center justify-center text-indigo-400">
-                            <i data-lucide="cpu" class="w-5 h-5"></i>
-                        </div>
-                        <div>
-                            <div class="text-xs font-semibold text-slate-200">Cyber Tech Studio</div>
-                            <div class="text-[10px] text-slate-400">Futuristic icon & bold text</div>
-                        </div>
-                    </button>
-                    <button data-preset="luxury" class="btn-preset text-left p-3 rounded-xl bg-slate-800/60 border border-slate-700/60 hover:border-indigo-500 hover:bg-slate-800 transition flex items-center space-x-3">
-                        <div class="w-10 h-10 rounded-lg bg-amber-950/40 border border-amber-500/40 flex items-center justify-center text-amber-400 font-serif font-bold">M</div>
-                        <div>
-                            <div class="text-xs font-semibold text-slate-200">Luxury Crest</div>
-                            <div class="text-[10px] text-slate-400">Golden ring & serif initials</div>
-                        </div>
-                    </button>
-                    <button data-preset="eco" class="btn-preset text-left p-3 rounded-xl bg-slate-800/60 border border-slate-700/60 hover:border-indigo-500 hover:bg-slate-800 transition flex items-center space-x-3">
-                        <div class="w-10 h-10 rounded-lg bg-emerald-950/40 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
-                            <i data-lucide="feather" class="w-5 h-5"></i>
-                        </div>
-                        <div>
-                            <div class="text-xs font-semibold text-slate-200">Eco Organic Brand</div>
-                            <div class="text-[10px] text-slate-400">Natural leaf motif</div>
-                        </div>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Shapes Tab -->
-            <div id="tab-elements" class="tab-pane p-4 space-y-4 hidden">
-                <h2 class="font-bold text-sm text-slate-200 uppercase tracking-wider">Add Shapes</h2>
-                <div class="grid grid-cols-2 gap-2.5">
-                    <button data-shape="rectangle" class="btn-add-shape p-3 rounded-xl bg-slate-800 border border-slate-700 hover:border-indigo-500 flex flex-col items-center gap-2 text-slate-300 hover:text-white transition">
-                        <div class="w-8 h-8 bg-indigo-500 rounded-sm"></div>
-                        <span class="text-xs">Square</span>
-                    </button>
-                    <button data-shape="circle" class="btn-add-shape p-3 rounded-xl bg-slate-800 border border-slate-700 hover:border-indigo-500 flex flex-col items-center gap-2 text-slate-300 hover:text-white transition">
-                        <div class="w-8 h-8 bg-indigo-500 rounded-full"></div>
-                        <span class="text-xs">Circle</span>
-                    </button>
-                    <button data-shape="ring" class="btn-add-shape p-3 rounded-xl bg-slate-800 border border-slate-700 hover:border-indigo-500 flex flex-col items-center gap-2 text-slate-300 hover:text-white transition">
-                        <div class="w-8 h-8 border-4 border-indigo-500 rounded-full"></div>
-                        <span class="text-xs">Ring</span>
-                    </button>
-                    <button data-shape="badge" class="btn-add-shape p-3 rounded-xl bg-slate-800 border border-slate-700 hover:border-indigo-500 flex flex-col items-center gap-2 text-slate-300 hover:text-white transition">
-                        <div class="w-7 h-7 bg-indigo-500 rotate-45 rounded-sm"></div>
-                        <span class="text-xs">Diamond</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Vector Icons Tab -->
-            <div id="tab-icons" class="tab-pane p-4 space-y-4 hidden">
-                <h2 class="font-bold text-sm text-slate-200 uppercase tracking-wider">Vector Icons</h2>
-                <div class="grid grid-cols-4 gap-2 text-slate-300" id="iconGrid"></div>
-            </div>
-
-            <!-- Text Options Tab -->
-            <div id="tab-text" class="tab-pane p-4 space-y-4 hidden">
-                <h2 class="font-bold text-sm text-slate-200 uppercase tracking-wider">Add Typography</h2>
-                <div class="space-y-2.5">
-                    <button data-text-type="header" class="btn-add-text w-full text-left p-3 rounded-xl bg-slate-800 border border-slate-700 hover:border-indigo-500 transition flex items-center justify-between">
-                        <span class="font-bold text-base text-slate-100">Add Brand Title</span>
-                        <span class="text-[10px] text-slate-400">32px</span>
-                    </button>
-                    <button data-text-type="subheading" class="btn-add-text w-full text-left p-3 rounded-xl bg-slate-800 border border-slate-700 hover:border-indigo-500 transition flex items-center justify-between">
-                        <span class="font-medium text-xs text-slate-200">Add Subtitle</span>
-                        <span class="text-[10px] text-slate-400">18px</span>
-                    </button>
-                    <button data-text-type="tagline" class="btn-add-text w-full text-left p-3 rounded-xl bg-slate-800 border border-slate-700 hover:border-indigo-500 transition flex items-center justify-between">
-                        <span class="text-[10px] uppercase tracking-widest text-slate-400">SLOGAN / TAGLINE</span>
-                        <span class="text-[10px] text-slate-400">12px</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Color Swatches Tab -->
-            <div id="tab-colors" class="tab-pane p-4 space-y-4 hidden">
-                <h2 class="font-bold text-sm text-slate-200 uppercase tracking-wider">Color Palettes</h2>
-                <p class="text-xs text-slate-400">Select an item on the white canvas then click a color:</p>
-                <div class="space-y-3" id="paletteContainer"></div>
-            </div>
-
-            <!-- Layers Stack Tab -->
-            <div id="tab-layers" class="tab-pane p-4 space-y-4 hidden">
-                <div class="flex items-center justify-between">
-                    <h2 class="font-bold text-sm text-slate-200 uppercase tracking-wider">Layers Stack</h2>
-                    <span id="layerCountText" class="text-[10px] bg-slate-800 px-2 py-0.5 rounded text-slate-400">0 items</span>
-                </div>
-                <div id="layersList" class="space-y-1.5 min-h-[150px]"></div>
-            </div>
-        </aside>
-
-        <!-- Central Studio Workspace Area -->
-        <main class="flex-1 flex flex-col bg-slate-950 relative overflow-hidden">
-            
-            <!-- Active Selection Context Controls -->
-            <div id="contextToolbar" class="h-12 bg-slate-900 border-b border-slate-800 px-4 flex items-center justify-between shrink-0 overflow-x-auto text-xs z-10 shadow-sm">
-                <div id="selectedControls" class="flex items-center space-x-3 min-w-max hidden">
-                    <span id="selectedObjectType" class="font-semibold text-indigo-400 uppercase text-[10px] tracking-wider px-2 py-0.5 bg-indigo-950 rounded border border-indigo-800/60">Element</span>
-
-                    <!-- Color Picker -->
-                    <div class="flex items-center space-x-1.5 bg-slate-800 px-2 py-1 rounded-lg border border-slate-700">
-                        <span class="text-slate-400 text-[11px]">Color:</span>
-                        <input type="color" id="elemFillColor" class="w-6 h-6 rounded border-0 bg-transparent cursor-pointer">
-                    </div>
-
-                    <!-- Text Specific Controls -->
-                    <div id="textControls" class="flex items-center space-x-2 hidden">
-                        <input type="text" id="textInputContent" class="bg-slate-800 border border-slate-700 text-slate-200 rounded px-2 py-1 text-xs w-32" placeholder="Text Content">
-                        <select id="fontFamilySelect" class="bg-slate-800 border border-slate-700 text-slate-200 rounded px-2 py-1 text-xs">
-                            <option value="Inter">Inter (Sans)</option>
-                            <option value="Montserrat">Montserrat (Modern)</option>
-                            <option value="Space Grotesk">Space Grotesk (Tech)</option>
-                            <option value="Cinzel">Cinzel (Luxury Serif)</option>
-                            <option value="Pacifico">Pacifico (Script)</option>
-                        </select>
-                        <input type="number" id="fontSizeInput" min="8" max="150" class="w-14 bg-slate-800 border border-slate-700 text-slate-200 rounded px-2 py-1 text-xs text-center" value="24">
-                    </div>
-
-                    <div class="h-4 w-px bg-slate-800"></div>
-
-                    <!-- Duplication & Deletion -->
-                    <button id="btnDuplicate" class="p-1.5 rounded bg-slate-800 text-indigo-400 hover:bg-indigo-950 border border-slate-700" title="Duplicate"><i data-lucide="copy" class="w-3.5 h-3.5"></i></button>
-                    <button id="btnDeleteElem" class="p-1.5 rounded bg-rose-950/60 text-rose-400 hover:bg-rose-900 border border-rose-800/60" title="Delete"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
-                </div>
-
-                <div id="noSelectionControls" class="text-slate-500 text-xs flex items-center space-x-2 italic">
-                    <i data-lucide="mouse-pointer" class="w-4 h-4 text-indigo-400"></i>
-                    <span>Tap any element on the white paper artboard to edit it</span>
-                </div>
-            </div>
-
-            <!-- DARK STUDIO WORKSPACE AREA -->
-            <div id="viewport" class="flex-1 workspace-bg flex items-center justify-center p-6 overflow-auto relative">
-                
-                <!-- PROMINENT PURE WHITE ARTBOARD PAPER CANVAS -->
-                <div class="relative flex flex-col items-center">
-                    
-                    <!-- White Paper Canvas Container -->
-                    <div id="designCanvas" 
-                         class="relative bg-white shadow-2xl transition-transform duration-75 origin-center rounded-sm" 
-                         style="width: 500px; height: 500px; background-color: #ffffff; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.1);">
-                        
-                        <!-- Canvas elements layer -->
-                        <div id="canvasElements" class="absolute inset-0 z-10 overflow-hidden"></div>
-                    </div>
-
-                    <!-- Artboard Label Badge below canvas -->
-                    <div class="mt-3 px-3 py-1 bg-slate-900/80 border border-slate-800 text-slate-400 text-[11px] font-mono rounded-full backdrop-blur-sm flex items-center gap-1.5 shadow-md">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                        <span>Mimi White Artboard Canvas (500 × 500 px)</span>
-                    </div>
-
-                </div>
-
-            </div>
-        </main>
+  <!-- Header Bar -->
+  <header class="h-14 bg-slate-900 border-b border-slate-800 px-4 flex items-center justify-between z-30 shrink-0">
+    <div class="flex items-center space-x-2.5">
+      <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-500 via-purple-500 to-rose-500 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+        <i data-lucide="palette" class="w-4 h-4 text-white"></i>
+      </div>
+      <div>
+        <h1 class="font-extrabold text-sm tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-rose-400">
+          Mimi Designer
+        </h1>
+        <p class="text-[9px] text-slate-400 font-medium leading-none">Mobile Graphic Studio</p>
+      </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            
-            // App State
-            const state = {
-                zoom: 1.0,
-                showGrid: false,
-                elements: [],
-                selectedId: null,
-                palettes: [
-                    { name: 'Cyber Neon', colors: ['#4f46e5', '#06b6d4', '#10b981', '#0f172a', '#64748b'] },
-                    { name: 'Luxury Gold', colors: ['#d97706', '#b45309', '#78350f', '#1c1917', '#fef3c7'] },
-                    { name: 'Sunset Vibe', colors: ['#f43f5e', '#fb923c', '#facc15', '#4c0519', '#fff1f2'] },
-                    { name: 'Eco Natural', colors: ['#059669', '#10b981', '#047857', '#064e3b', '#ecfdf5'] }
-                ],
-                iconList: ['sparkles', 'zap', 'shield', 'crown', 'award', 'target', 'flame', 'feather', 'rocket', 'heart', 'star', 'globe', 'cpu', 'anchor', 'coffee', 'gem', 'compass', 'sun']
-            };
+    <!-- Actions -->
+    <div class="flex items-center space-x-2">
+      <button id="btnClear" class="p-2 text-slate-400 hover:text-rose-400 active:scale-95 transition" title="Clear Canvas">
+        <i data-lucide="rotate-ccw" class="w-5 h-5"></i>
+      </button>
+      <button id="btnExportPNG" class="flex items-center space-x-1.5 bg-indigo-600 active:bg-indigo-700 text-white text-xs font-semibold px-3 py-2 rounded-xl shadow-lg shadow-indigo-600/30 active:scale-95 transition">
+        <i data-lucide="download" class="w-4 h-4"></i>
+        <span>Save PNG</span>
+      </button>
+    </div>
+  </header>
 
-            const designCanvas = document.getElementById('designCanvas');
-            const canvasElements = document.getElementById('canvasElements');
-            const layersList = document.getElementById('layersList');
-            const paletteContainer = document.getElementById('paletteContainer');
+  <!-- Center Workspace (Artboard Stage) -->
+  <main class="flex-1 workspace-bg relative flex items-center justify-center p-4 overflow-hidden">
+    
+    <!-- PURE WHITE ARTBOARD PAPER CANVAS -->
+    <div id="artboardContainer" class="relative flex flex-col items-center justify-center">
+      <div id="artboard" class="relative bg-white shadow-2xl transition-all duration-150 origin-center rounded-sm overflow-hidden" style="width: 340px; height: 340px; background-color: #ffffff; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);">
+        <!-- Elements rendering area -->
+        <div id="canvasElements" class="absolute inset-0 w-full h-full"></div>
+      </div>
+    </div>
 
-            // Initialize Tools & Palettes
-            function initTools() {
-                // Populate Color Palettes
-                paletteContainer.innerHTML = '';
-                state.palettes.forEach(pal => {
-                    const block = document.createElement('div');
-                    block.className = 'p-2 rounded-xl bg-slate-800/80 border border-slate-700/60 space-y-1.5';
-                    let swatches = pal.colors.map(c => `
-                        <button data-color="${c}" class="btn-swatch flex-1 h-7 rounded-md transition hover:scale-110 shadow-sm" style="background-color: ${c}"></button>
-                    `).join('');
-                    block.innerHTML = `
-                        <div class="text-[11px] font-semibold text-slate-300 px-1">${pal.name}</div>
-                        <div class="flex gap-1.5">${swatches}</div>
-                    `;
-                    paletteContainer.appendChild(block);
-                });
+    <!-- Floating Selection Quick Action Bar (Appears when item selected) -->
+    <div id="selectionOverlay" class="absolute top-3 left-1/2 -translate-x-1/2 bg-slate-900/90 border border-slate-700/80 backdrop-blur-md px-3 py-1.5 rounded-full shadow-2xl flex items-center space-x-3 text-xs z-30 transition-all duration-200 opacity-0 pointer-events-none transform -translate-y-2">
+      <button id="btnLayerUp" class="p-1.5 text-slate-300 hover:text-white" title="Bring Forward"><i data-lucide="arrow-up" class="w-4 h-4"></i></button>
+      <button id="btnLayerDown" class="p-1.5 text-slate-300 hover:text-white" title="Send Backward"><i data-lucide="arrow-down" class="w-4 h-4"></i></button>
+      <div class="h-4 w-px bg-slate-700"></div>
+      <button id="btnDuplicate" class="p-1.5 text-indigo-400 hover:text-indigo-300" title="Duplicate"><i data-lucide="copy" class="w-4 h-4"></i></button>
+      <button id="btnDelete" class="p-1.5 text-rose-400 hover:text-rose-300" title="Delete"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+    </div>
+  </main>
 
-                document.querySelectorAll('.btn-swatch').forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        const col = btn.getAttribute('data-color');
-                        applyColorToSelected(col);
-                    });
-                });
+  <!-- Slide-up Tool Drawer Panel -->
+  <div id="drawerPanel" class="bg-slate-900/95 border-t border-slate-800 backdrop-blur-md z-20 transition-all duration-300 overflow-hidden max-h-0">
+    <div class="p-4 max-w-md mx-auto relative">
+      
+      <!-- Close panel button -->
+      <button id="btnCloseDrawer" class="absolute top-3 right-3 p-1 text-slate-400 hover:text-white">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
 
-                // Populate Vector Icons Grid
-                const iconGrid = document.getElementById('iconGrid');
-                iconGrid.innerHTML = '';
-                state.iconList.forEach(iconName => {
-                    const btn = document.createElement('button');
-                    btn.className = 'p-2.5 rounded-xl bg-slate-800 border border-slate-700 hover:border-indigo-500 hover:text-white flex items-center justify-center transition';
-                    btn.innerHTML = `<i data-lucide="${iconName}" class="w-5 h-5"></i>`;
-                    btn.addEventListener('click', () => addIconElement(iconName));
-                    iconGrid.appendChild(btn);
-                });
+      <!-- 1. TEXT PANEL -->
+      <div id="panel-text" class="tool-panel hidden space-y-3">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-indigo-400">Text Tools</h3>
+          <button id="btnAddText" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-3 py-1.5 rounded-lg flex items-center gap-1 active:scale-95 transition">
+            <i data-lucide="plus" class="w-4 h-4"></i> Add Text
+          </button>
+        </div>
 
-                lucide.createIcons();
-            }
+        <!-- Keyboard input box for text editing -->
+        <div>
+          <label class="text-[10px] text-slate-400 uppercase font-semibold mb-1 block">Write Something (Keyboard)</label>
+          <input type="text" id="textInput" placeholder="Type text here..." class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
+        </div>
 
-            function renderCanvas() {
-                canvasElements.innerHTML = '';
+        <!-- Quick Size Presets -->
+        <div>
+          <label class="text-[10px] text-slate-400 uppercase font-semibold mb-1 block">Text Size</label>
+          <div class="grid grid-cols-4 gap-1.5 mb-2">
+            <button data-size="16" class="btn-text-size bg-slate-800 border border-slate-700 rounded-lg py-1 text-xs text-slate-300 active:bg-indigo-600">Small</button>
+            <button data-size="28" class="btn-text-size bg-slate-800 border border-slate-700 rounded-lg py-1 text-xs text-slate-300 active:bg-indigo-600">Medium</button>
+            <button data-size="42" class="btn-text-size bg-slate-800 border border-slate-700 rounded-lg py-1 text-xs text-slate-300 active:bg-indigo-600">Big</button>
+            <button data-size="60" class="btn-text-size bg-slate-800 border border-slate-700 rounded-lg py-1 text-xs text-slate-300 active:bg-indigo-600">Huge</button>
+          </div>
+          <input type="range" id="textSizeSlider" min="10" max="90" value="28" class="w-full accent-indigo-500">
+        </div>
 
-                state.elements.forEach(elem => {
-                    const isSelected = elem.id === state.selectedId;
-                    const wrapper = document.createElement('div');
-                    wrapper.id = elem.id;
-                    wrapper.className = `absolute cursor-move no-select flex items-center justify-center ${isSelected ? 'selected-box' : ''}`;
-                    
-                    wrapper.style.left = `${elem.x}px`;
-                    wrapper.style.top = `${elem.y}px`;
-                    wrapper.style.width = `${elem.width}px`;
-                    wrapper.style.height = `${elem.height}px`;
+        <!-- Font Family Options -->
+        <div>
+          <label class="text-[10px] text-slate-400 uppercase font-semibold mb-1 block">Font Styles</label>
+          <div class="grid grid-cols-3 gap-1.5">
+            <button data-font="Inter" class="btn-font bg-slate-800 border border-slate-700 rounded-lg p-2 text-xs font-sans text-slate-200 text-center">Sans Modern</button>
+            <button data-font="Cinzel" class="btn-font bg-slate-800 border border-slate-700 rounded-lg p-2 text-xs font-serif text-slate-200 text-center">Cinzel Serif</button>
+            <button data-font="Pacifico" class="btn-font bg-slate-800 border border-slate-700 rounded-lg p-2 text-xs font-cursive text-slate-200 text-center">Cursive Script</button>
+            <button data-font="Space Grotesk" class="btn-font bg-slate-800 border border-slate-700 rounded-lg p-2 text-xs font-mono text-slate-200 text-center">Tech Grotesk</button>
+            <button data-font="Montserrat" class="btn-font bg-slate-800 border border-slate-700 rounded-lg p-2 text-xs font-bold text-slate-200 text-center">Bold Heavy</button>
+            <button data-font="Fredoka" class="btn-font bg-slate-800 border border-slate-700 rounded-lg p-2 text-xs font-rounded text-slate-200 text-center">Playful</button>
+          </div>
+        </div>
+      </div>
 
-                    // Dragging handler (Mouse + Touch)
-                    const handleDragStart = (e) => {
-                        e.stopPropagation();
-                        selectElement(elem.id);
-                        
-                        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-                        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-                        let startX = clientX, startY = clientY, origX = elem.x, origY = elem.y;
+      <!-- 2. COLORS PANEL -->
+      <div id="panel-colors" class="tool-panel hidden space-y-3">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-indigo-400">20+ Color Palette</h3>
+        <p class="text-[11px] text-slate-400">Tap a color to apply to selected item or paper:</p>
+        
+        <!-- Palette swatches including Metallic Gold -->
+        <div class="grid grid-cols-5 gap-2.5 max-h-48 overflow-y-auto p-1" id="colorsGrid"></div>
+      </div>
 
-                        function onMove(e) {
-                            const currentX = e.touches ? e.touches[0].clientX : e.clientX;
-                            const currentY = e.touches ? e.touches[0].clientY : e.clientY;
-                            elem.x = Math.round(origX + (currentX - startX) / state.zoom);
-                            elem.y = Math.round(origY + (currentY - startY) / state.zoom);
-                            renderCanvas();
-                        }
+      <!-- 3. SHAPES PANEL -->
+      <div id="panel-shapes" class="tool-panel hidden space-y-3">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-indigo-400">Insert Shapes</h3>
+        <div class="grid grid-cols-3 gap-2.5">
+          <button data-shape="square" class="btn-add-shape bg-slate-800 border border-slate-700 rounded-xl p-3 flex flex-col items-center gap-1 hover:border-indigo-500 active:scale-95 transition">
+            <div class="w-6 h-6 bg-indigo-500 rounded-sm"></div>
+            <span class="text-[10px] text-slate-300">Square</span>
+          </button>
+          <button data-shape="circle" class="btn-add-shape bg-slate-800 border border-slate-700 rounded-xl p-3 flex flex-col items-center gap-1 hover:border-indigo-500 active:scale-95 transition">
+            <div class="w-6 h-6 bg-indigo-500 rounded-full"></div>
+            <span class="text-[10px] text-slate-300">Circle</span>
+          </button>
+          <button data-shape="triangle" class="btn-add-shape bg-slate-800 border border-slate-700 rounded-xl p-3 flex flex-col items-center gap-1 hover:border-indigo-500 active:scale-95 transition">
+            <div class="w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent border-b-[20px] border-b-indigo-500"></div>
+            <span class="text-[10px] text-slate-300">Triangle</span>
+          </button>
+          <button data-shape="right-triangle" class="btn-add-shape bg-slate-800 border border-slate-700 rounded-xl p-3 flex flex-col items-center gap-1 hover:border-indigo-500 active:scale-95 transition">
+            <div class="w-0 h-0 border-r-[20px] border-r-transparent border-b-[20px] border-b-indigo-500"></div>
+            <span class="text-[10px] text-slate-300">Right Angle</span>
+          </button>
+          <button data-shape="star" class="btn-add-shape bg-slate-800 border border-slate-700 rounded-xl p-3 flex flex-col items-center gap-1 hover:border-indigo-500 active:scale-95 transition">
+            <div class="w-6 h-6 bg-indigo-500 shape-star"></div>
+            <span class="text-[10px] text-slate-300">Star</span>
+          </button>
+          <button data-shape="hexagon" class="btn-add-shape bg-slate-800 border border-slate-700 rounded-xl p-3 flex flex-col items-center gap-1 hover:border-indigo-500 active:scale-95 transition">
+            <div class="w-6 h-6 bg-indigo-500 shape-hexagon"></div>
+            <span class="text-[10px] text-slate-300">Hexagon</span>
+          </button>
+          <button data-shape="line" class="btn-add-shape bg-slate-800 border border-slate-700 rounded-xl p-3 flex flex-col items-center gap-1 hover:border-indigo-500 active:scale-95 transition">
+            <div class="w-6 h-1 bg-indigo-500 my-2 rounded"></div>
+            <span class="text-[10px] text-slate-300">Line</span>
+          </button>
+          <button data-shape="heart" class="btn-add-shape bg-slate-800 border border-slate-700 rounded-xl p-3 flex flex-col items-center gap-1 hover:border-indigo-500 active:scale-95 transition">
+            <div class="w-6 h-6 bg-rose-500 shape-heart"></div>
+            <span class="text-[10px] text-slate-300">Heart</span>
+          </button>
+          <button data-shape="ring" class="btn-add-shape bg-slate-800 border border-slate-700 rounded-xl p-3 flex flex-col items-center gap-1 hover:border-indigo-500 active:scale-95 transition">
+            <div class="w-6 h-6 border-4 border-indigo-500 rounded-full"></div>
+            <span class="text-[10px] text-slate-300">Ring</span>
+          </button>
+        </div>
+      </div>
 
-                        function onEnd() {
-                            document.removeEventListener('mousemove', onMove);
-                            document.removeEventListener('mouseup', onEnd);
-                            document.removeEventListener('touchmove', onMove);
-                            document.removeEventListener('touchend', onEnd);
-                            renderLayersPanel();
-                        }
+      <!-- 4. LOGOS PANEL -->
+      <div id="panel-logos" class="tool-panel hidden space-y-3">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-indigo-400">Preset Logo Builds</h3>
+        <p class="text-[11px] text-slate-400">Tap a built-in logo preset to load on paper:</p>
+        <div class="grid grid-cols-2 gap-2.5">
+          <button data-preset="luxury" class="btn-preset bg-slate-800 border border-slate-700 rounded-xl p-3 text-left hover:border-amber-500 transition">
+            <div class="font-serif font-bold text-amber-400 text-sm">LUXURY CREST</div>
+            <div class="text-[9px] text-slate-400">Gold Ring & Serif Badge</div>
+          </button>
+          <button data-preset="cyber" class="btn-preset bg-slate-800 border border-slate-700 rounded-xl p-3 text-left hover:border-cyan-500 transition">
+            <div class="font-mono font-bold text-cyan-400 text-sm">CYBER TECH</div>
+            <div class="text-[9px] text-slate-400">Futuristic Icon & Bold Text</div>
+          </button>
+          <button data-preset="minimal" class="btn-preset bg-slate-800 border border-slate-700 rounded-xl p-3 text-left hover:border-indigo-500 transition">
+            <div class="font-sans font-extrabold text-indigo-400 text-sm">MINIMALIST</div>
+            <div class="text-[9px] text-slate-400">Modern Clean Monogram</div>
+          </button>
+          <button data-preset="nature" class="btn-preset bg-slate-800 border border-slate-700 rounded-xl p-3 text-left hover:border-emerald-500 transition">
+            <div class="font-bold text-emerald-400 text-sm">ECO BOTANICAL</div>
+            <div class="text-[9px] text-slate-400">Natural Leaf Motif</div>
+          </button>
+        </div>
+      </div>
 
-                        document.addEventListener('mousemove', onMove);
-                        document.addEventListener('mouseup', onEnd);
-                        document.addEventListener('touchmove', onMove);
-                        document.addEventListener('touchend', onEnd);
-                    };
+      <!-- 5. BACKGROUND PANEL -->
+      <div id="panel-bg" class="tool-panel hidden space-y-3">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-indigo-400">Artboard Paper Background</h3>
+        <div class="flex items-center space-x-3">
+          <button id="btnPaperWhite" class="flex-1 py-2 rounded-xl bg-white text-slate-900 font-bold text-xs border border-slate-300">Pure White</button>
+          <button id="btnPaperDark" class="flex-1 py-2 rounded-xl bg-slate-900 text-white font-bold text-xs border border-slate-700">Dark Paper</button>
+          <button id="btnPaperCream" class="flex-1 py-2 rounded-xl bg-[#FFFDD0] text-slate-900 font-bold text-xs border border-amber-200">Warm Cream</button>
+        </div>
+      </div>
 
-                    wrapper.addEventListener('mousedown', handleDragStart);
-                    wrapper.addEventListener('touchstart', handleDragStart, { passive: true });
+      <!-- 6. LAYERS PANEL -->
+      <div id="panel-layers" class="tool-panel hidden space-y-3">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-indigo-400">Layers Stack</h3>
+        <div id="layersList" class="space-y-1.5 max-h-40 overflow-y-auto"></div>
+      </div>
 
-                    // Render object types
-                    if (elem.type === 'text') {
-                        const textElem = document.createElement('div');
-                        textElem.className = 'w-full h-full flex items-center justify-center text-center outline-none font-bold';
-                        textElem.style.fontFamily = elem.fontFamily || 'Inter';
-                        textElem.style.fontSize = `${elem.fontSize}px`;
-                        textElem.style.color = elem.color || '#0f172a';
-                        textElem.innerText = elem.text;
-                        wrapper.appendChild(textElem);
-                    } else if (elem.type === 'shape') {
-                        const shapeContainer = document.createElement('div');
-                        shapeContainer.className = 'w-full h-full flex items-center justify-center';
-                        shapeContainer.style.backgroundColor = elem.color || '#4f46e5';
+    </div>
+  </div>
 
-                        if (elem.shape === 'circle') shapeContainer.style.borderRadius = '9999px';
-                        if (elem.shape === 'rectangle') shapeContainer.style.borderRadius = '6px';
-                        if (elem.shape === 'badge') {
-                            shapeContainer.style.transform = 'rotate(45deg)';
-                            shapeContainer.style.borderRadius = '6px';
-                        }
-                        if (elem.shape === 'ring') {
-                            shapeContainer.style.backgroundColor = 'transparent';
-                            shapeContainer.style.border = `8px solid ${elem.color || '#4f46e5'}`;
-                            shapeContainer.style.borderRadius = '9999px';
-                        }
-                        wrapper.appendChild(shapeContainer);
-                    } else if (elem.type === 'icon') {
-                        const iconContainer = document.createElement('div');
-                        iconContainer.className = 'w-full h-full flex items-center justify-center';
-                        iconContainer.style.color = elem.color || '#4f46e5';
-                        iconContainer.innerHTML = `<i data-lucide="${elem.icon}" style="width:100%; height:100%;"></i>`;
-                        wrapper.appendChild(iconContainer);
-                    }
+  <!-- Bottom Navigation Dock (Canva / PicsArt Style) -->
+  <nav class="h-16 bg-slate-900 border-t border-slate-800 px-2 flex items-center justify-around z-30 shrink-0">
+    <button data-target="text" class="nav-dock-btn flex flex-col items-center justify-center min-w-[54px] py-1 text-slate-400 hover:text-indigo-400 transition">
+      <i data-lucide="type" class="w-5 h-5"></i>
+      <span class="text-[10px] font-medium mt-1">Text</span>
+    </button>
+    <button data-target="colors" class="nav-dock-btn flex flex-col items-center justify-center min-w-[54px] py-1 text-slate-400 hover:text-indigo-400 transition">
+      <i data-lucide="palette" class="w-5 h-5"></i>
+      <span class="text-[10px] font-medium mt-1">Colors</span>
+    </button>
+    <button data-target="shapes" class="nav-dock-btn flex flex-col items-center justify-center min-w-[54px] py-1 text-slate-400 hover:text-indigo-400 transition">
+      <i data-lucide="shapes" class="w-5 h-5"></i>
+      <span class="text-[10px] font-medium mt-1">Shapes</span>
+    </button>
+    <button data-target="logos" class="nav-dock-btn flex flex-col items-center justify-center min-w-[54px] py-1 text-slate-400 hover:text-indigo-400 transition">
+      <i data-lucide="sparkles" class="w-5 h-5"></i>
+      <span class="text-[10px] font-medium mt-1">Logos</span>
+    </button>
+    <button data-target="bg" class="nav-dock-btn flex flex-col items-center justify-center min-w-[54px] py-1 text-slate-400 hover:text-indigo-400 transition">
+      <i data-lucide="square" class="w-5 h-5"></i>
+      <span class="text-[10px] font-medium mt-1">Paper</span>
+    </button>
+    <button data-target="layers" class="nav-dock-btn flex flex-col items-center justify-center min-w-[54px] py-1 text-slate-400 hover:text-indigo-400 transition">
+      <i data-lucide="layers" class="w-5 h-5"></i>
+      <span class="text-[10px] font-medium mt-1">Layers</span>
+    </button>
+  </nav>
 
-                    canvasElements.appendChild(wrapper);
-                });
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      
+      // Application State
+      const state = {
+        elements: [],
+        selectedId: null,
+        paperColor: '#ffffff',
+        // 20 rich colors requested including Metallic Gold
+        colors: [
+          '#D4AF37', // Metallic Gold
+          '#B76E79', // Rose Gold
+          '#00FFFF', // Cyber Cyan
+          '#39FF14', // Neon Green
+          '#8A2BE2', // Deep Violet
+          '#FF4500', // Sunset Orange
+          '#000000', // Pure Black
+          '#FFFFFF', // Crisp White
+          '#4F46E5', // Indigo
+          '#EC4899', // Pink
+          '#10B981', // Emerald
+          '#F59E0B', // Amber
+          '#EF4444', // Red
+          '#06B6D4', // Sky Cyan
+          '#6366F1', // Lavender Blue
+          '#14B8A6', // Teal
+          '#8B5CF6', // Purple
+          '#D97706', // Gold Yellow
+          '#334155', // Slate Gray
+          '#475569'  // Cool Gray
+        ]
+      };
 
-                lucide.createIcons();
-            }
+      const artboard = document.getElementById('artboard');
+      const canvasElements = document.getElementById('canvasElements');
+      const drawerPanel = document.getElementById('drawerPanel');
+      const selectionOverlay = document.getElementById('selectionOverlay');
 
-            function addTextElement(text, size, font) {
-                const newElem = {
-                    id: 'elem_' + Date.now(),
-                    type: 'text',
-                    text: text,
-                    fontSize: size,
-                    fontFamily: font || 'Inter',
-                    color: '#0f172a',
-                    x: 100,
-                    y: 200,
-                    width: 300,
-                    height: 60
-                };
-                state.elements.push(newElem);
-                selectElement(newElem.id);
-            }
-
-            function addShapeElement(shapeType) {
-                const newElem = {
-                    id: 'elem_' + Date.now(),
-                    type: 'shape',
-                    shape: shapeType,
-                    color: '#4f46e5',
-                    x: 180,
-                    y: 180,
-                    width: 140,
-                    height: 140
-                };
-                state.elements.push(newElem);
-                selectElement(newElem.id);
-            }
-
-            function addIconElement(iconName) {
-                const newElem = {
-                    id: 'elem_' + Date.now(),
-                    type: 'icon',
-                    icon: iconName,
-                    color: '#4f46e5',
-                    x: 200,
-                    y: 160,
-                    width: 100,
-                    height: 100
-                };
-                state.elements.push(newElem);
-                selectElement(newElem.id);
-            }
-
-            function selectElement(id) {
-                state.selectedId = id;
-                renderCanvas();
-                renderLayersPanel();
-                updateContextToolbar();
-            }
-
-            function applyColorToSelected(color) {
-                const elem = state.elements.find(e => e.id === state.selectedId);
-                if (elem) {
-                    elem.color = color;
-                    renderCanvas();
-                    updateContextToolbar();
-                }
-            }
-
-            function updateContextToolbar() {
-                const selectedControls = document.getElementById('selectedControls');
-                const noSelectionControls = document.getElementById('noSelectionControls');
-                const textControls = document.getElementById('textControls');
-                const selectedElem = state.elements.find(e => e.id === state.selectedId);
-
-                if (!selectedElem) {
-                    selectedControls.classList.add('hidden');
-                    noSelectionControls.classList.remove('hidden');
-                    return;
-                }
-
-                selectedControls.classList.remove('hidden');
-                noSelectionControls.classList.add('hidden');
-
-                document.getElementById('selectedObjectType').innerText = selectedElem.type;
-                document.getElementById('elemFillColor').value = selectedElem.color || '#4f46e5';
-
-                if (selectedElem.type === 'text') {
-                    textControls.classList.remove('hidden');
-                    document.getElementById('textInputContent').value = selectedElem.text || '';
-                    document.getElementById('fontFamilySelect').value = selectedElem.fontFamily || 'Inter';
-                    document.getElementById('fontSizeInput').value = selectedElem.fontSize || 24;
-                } else {
-                    textControls.classList.add('hidden');
-                }
-            }
-
-            function renderLayersPanel() {
-                layersList.innerHTML = '';
-                document.getElementById('layerCountText').innerText = `${state.elements.length} items`;
-                state.elements.slice().reverse().forEach((elem) => {
-                    const isSelected = elem.id === state.selectedId;
-                    const item = document.createElement('div');
-                    item.className = `p-2.5 rounded-lg border text-xs flex items-center justify-between cursor-pointer transition ${isSelected ? 'bg-indigo-950 border-indigo-600 text-white' : 'bg-slate-800/60 border-slate-700/60 text-slate-300'}`;
-                    item.innerHTML = `<span class="truncate font-medium">${elem.type.toUpperCase()}: ${elem.text || elem.shape || elem.icon}</span>`;
-                    item.addEventListener('click', () => selectElement(elem.id));
-                    layersList.appendChild(item);
-                });
-            }
-
-            // Preset Logos Loader
-            function loadPreset(type) {
-                state.elements = [];
-                if (type === 'tech') {
-                    state.elements.push(
-                        { id: '1', type: 'icon', icon: 'cpu', color: '#4f46e5', x: 200, y: 110, width: 100, height: 100 },
-                        { id: '2', type: 'text', text: 'CYBER TECH', fontSize: 28, fontFamily: 'Space Grotesk', color: '#0f172a', x: 100, y: 240, width: 300, height: 50 },
-                        { id: '3', type: 'text', text: 'INNOVATION STUDIO', fontSize: 12, fontFamily: 'Inter', color: '#64748b', x: 120, y: 290, width: 260, height: 30 }
-                    );
-                } else if (type === 'luxury') {
-                    state.elements.push(
-                        { id: '1', type: 'shape', shape: 'ring', color: '#d97706', x: 180, y: 110, width: 140, height: 140 },
-                        { id: '2', type: 'text', text: 'M', fontSize: 60, fontFamily: 'Cinzel', color: '#b45309', x: 200, y: 140, width: 100, height: 80 },
-                        { id: '3', type: 'text', text: 'MONTAGUE', fontSize: 24, fontFamily: 'Cinzel', color: '#1c1917', x: 100, y: 280, width: 300, height: 40 },
-                        { id: '4', type: 'text', text: 'PARIS • EST 1988', fontSize: 10, fontFamily: 'Inter', color: '#78350f', x: 120, y: 320, width: 260, height: 20 }
-                    );
-                } else if (type === 'eco') {
-                    state.elements.push(
-                        { id: '1', type: 'icon', icon: 'feather', color: '#059669', x: 210, y: 130, width: 80, height: 80 },
-                        { id: '2', type: 'text', text: 'VERDANT', fontSize: 30, fontFamily: 'Montserrat', color: '#064e3b', x: 100, y: 240, width: 300, height: 50 },
-                        { id: '3', type: 'text', text: 'ORGANIC BOTANICALS', fontSize: 11, fontFamily: 'Inter', color: '#10b981', x: 120, y: 290, width: 260, height: 30 }
-                    );
-                }
-                selectElement(state.elements[0].id);
-            }
-
-            document.querySelectorAll('.btn-preset').forEach(btn => {
-                btn.addEventListener('click', () => loadPreset(btn.getAttribute('data-preset')));
-            });
-
-            document.querySelectorAll('.btn-add-shape').forEach(btn => {
-                btn.addEventListener('click', () => addShapeElement(btn.getAttribute('data-shape')));
-            });
-
-            document.querySelectorAll('.btn-add-text').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const type = btn.getAttribute('data-text-type');
-                    if (type === 'header') addTextElement('YOUR BRAND', 32, 'Montserrat');
-                    if (type === 'subheading') addTextElement('Subheading Text', 18, 'Inter');
-                    if (type === 'tagline') addTextElement('CREATIVE SLOGAN HERE', 12, 'Space Grotesk');
-                });
-            });
-
-            document.getElementById('elemFillColor').addEventListener('input', (e) => applyColorToSelected(e.target.value));
-
-            document.getElementById('textInputContent').addEventListener('input', (e) => {
-                const elem = state.elements.find(e => e.id === state.selectedId);
-                if (elem && elem.type === 'text') {
-                    elem.text = e.target.value;
-                    renderCanvas();
-                }
-            });
-
-            document.getElementById('fontSizeInput').addEventListener('input', (e) => {
-                const elem = state.elements.find(e => e.id === state.selectedId);
-                if (elem && elem.type === 'text') {
-                    elem.fontSize = parseInt(e.target.value) || 20;
-                    renderCanvas();
-                }
-            });
-
-            document.getElementById('fontFamilySelect').addEventListener('change', (e) => {
-                const elem = state.elements.find(e => e.id === state.selectedId);
-                if (elem && elem.type === 'text') {
-                    elem.fontFamily = e.target.value;
-                    renderCanvas();
-                }
-            });
-
-            document.getElementById('btnDeleteElem').addEventListener('click', () => {
-                if (state.selectedId) {
-                    state.elements = state.elements.filter(e => e.id !== state.selectedId);
-                    state.selectedId = null;
-                    renderCanvas();
-                    renderLayersPanel();
-                    updateContextToolbar();
-                }
-            });
-
-            document.getElementById('btnDuplicate').addEventListener('click', () => {
-                const elem = state.elements.find(e => e.id === state.selectedId);
-                if (elem) {
-                    const clone = JSON.parse(JSON.stringify(elem));
-                    clone.id = 'elem_' + Date.now();
-                    clone.x += 20;
-                    clone.y += 20;
-                    state.elements.push(clone);
-                    selectElement(clone.id);
-                }
-            });
-
-            document.getElementById('btnToggleGrid').addEventListener('click', () => {
-                state.showGrid = !state.showGrid;
-                designCanvas.classList.toggle('artboard-grid', state.showGrid);
-            });
-
-            document.getElementById('btnClearCanvas').addEventListener('click', () => {
-                state.elements = [];
-                state.selectedId = null;
-                renderCanvas();
-                renderLayersPanel();
-                updateContextToolbar();
-            });
-
-            // Download Canvas as PNG
-            document.getElementById('btnExportPNG').addEventListener('click', () => {
-                const prevSelected = state.selectedId;
-                state.selectedId = null;
-                renderCanvas();
-
-                html2canvas(designCanvas, { backgroundColor: '#ffffff' }).then(canvas => {
-                    const link = document.createElement('a');
-                    link.download = 'mimi-designer-logo.png';
-                    link.href = canvas.toDataURL('image/png');
-                    link.click();
-
-                    state.selectedId = prevSelected;
-                    renderCanvas();
-                });
-            });
-
-            // Sidebar Navigation
-            document.querySelectorAll('.nav-tab').forEach(tabBtn => {
-                tabBtn.addEventListener('click', () => {
-                    document.querySelectorAll('.nav-tab').forEach(b => {
-                        b.classList.remove('text-indigo-400', 'bg-indigo-950/60', 'border', 'border-indigo-800/50');
-                        b.classList.add('text-slate-400');
-                    });
-                    tabBtn.classList.add('text-indigo-400', 'bg-indigo-950/60', 'border', 'border-indigo-800/50');
-                    document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.add('hidden'));
-                    document.getElementById(`tab-${tabBtn.getAttribute('data-tab')}`).classList.remove('hidden');
-                });
-            });
-
-            // Zoom Handlers
-            document.getElementById('btnZoomIn').addEventListener('click', () => {
-                if (state.zoom < 1.5) {
-                    state.zoom += 0.1;
-                    designCanvas.style.transform = `scale(${state.zoom})`;
-                    document.getElementById('zoomLevelText').innerText = `${Math.round(state.zoom * 100)}%`;
-                }
-            });
-
-            document.getElementById('btnZoomOut').addEventListener('click', () => {
-                if (state.zoom > 0.6) {
-                    state.zoom -= 0.1;
-                    designCanvas.style.transform = `scale(${state.zoom})`;
-                    document.getElementById('zoomLevelText').innerText = `${Math.round(state.zoom * 100)}%`;
-                }
-            });
-
-            // Launch with default tools and tech preset
-            initTools();
-            loadPreset('tech');
+      // Populate Color Swatches Grid
+      function initColorGrid() {
+        const grid = document.getElementById('colorsGrid');
+        grid.innerHTML = '';
+        state.colors.forEach(col => {
+          const btn = document.createElement('button');
+          btn.className = 'w-10 h-10 rounded-full border border-slate-700/60 shadow-md transition active:scale-95 mx-auto';
+          btn.style.backgroundColor = col;
+          btn.addEventListener('click', () => applyColorToSelected(col));
+          grid.appendChild(btn);
         });
-    </script>
+      }
+
+      // Render Canvas Elements
+      function renderCanvas() {
+        canvasElements.innerHTML = '';
+
+        state.elements.forEach(elem => {
+          const isSelected = elem.id === state.selectedId;
+          const wrapper = document.createElement('div');
+          wrapper.id = elem.id;
+          wrapper.className = `absolute cursor-move touch-none flex items-center justify-center ${isSelected ? 'element-selected' : ''}`;
+          
+          wrapper.style.left = `${elem.x}px`;
+          wrapper.style.top = `${elem.y}px`;
+          wrapper.style.width = `${elem.width}px`;
+          wrapper.style.height = `${elem.height}px`;
+
+          // Touch and Mouse Dragging
+          const handleDrag = (e) => {
+            e.stopPropagation();
+            selectElement(elem.id);
+
+            const startX = e.touches ? e.touches[0].clientX : e.clientX;
+            const startY = e.touches ? e.touches[0].clientY : e.clientY;
+            const origX = elem.x;
+            const origY = elem.y;
+
+            function onMove(e) {
+              const curX = e.touches ? e.touches[0].clientX : e.clientX;
+              const curY = e.touches ? e.touches[0].clientY : e.clientY;
+              elem.x = Math.round(origX + (curX - startX));
+              elem.y = Math.round(origY + (curY - startY));
+              renderCanvas();
+            }
+
+            function onEnd() {
+              document.removeEventListener('mousemove', onMove);
+              document.removeEventListener('mouseup', onEnd);
+              document.removeEventListener('touchmove', onMove);
+              document.removeEventListener('touchend', onEnd);
+              renderLayersList();
+            }
+
+            document.addEventListener('mousemove', onMove);
+            document.addEventListener('mouseup', onEnd);
+            document.addEventListener('touchmove', onMove);
+            document.addEventListener('touchend', onEnd);
+          };
+
+          wrapper.addEventListener('mousedown', handleDrag);
+          wrapper.addEventListener('touchstart', handleDrag, { passive: true });
+
+          // Types: Text, Shape
+          if (elem.type === 'text') {
+            const txt = document.createElement('div');
+            txt.className = 'w-full h-full flex items-center justify-center text-center font-bold break-words leading-tight';
+            txt.style.fontFamily = elem.fontFamily || 'Inter';
+            txt.style.fontSize = `${elem.fontSize}px`;
+            txt.style.color = elem.color || '#000000';
+            txt.innerText = elem.text;
+            wrapper.appendChild(txt);
+          } else if (elem.type === 'shape') {
+            const shp = document.createElement('div');
+            shp.className = 'w-full h-full flex items-center justify-center';
+            
+            if (elem.shape === 'square') {
+              shp.style.backgroundColor = elem.color;
+              shp.style.borderRadius = '6px';
+            } else if (elem.shape === 'circle') {
+              shp.style.backgroundColor = elem.color;
+              shp.style.borderRadius = '9999px';
+            } else if (elem.shape === 'triangle') {
+              shp.className = 'shape-triangle';
+              shp.style.color = elem.color;
+            } else if (elem.shape === 'right-triangle') {
+              shp.className = 'shape-right-triangle';
+              shp.style.color = elem.color;
+            } else if (elem.shape === 'star') {
+              shp.className = 'w-full h-full shape-star';
+              shp.style.backgroundColor = elem.color;
+            } else if (elem.shape === 'hexagon') {
+              shp.className = 'w-full h-full shape-hexagon';
+              shp.style.backgroundColor = elem.color;
+            } else if (elem.shape === 'heart') {
+              shp.className = 'w-full h-full shape-heart';
+              shp.style.backgroundColor = elem.color;
+            } else if (elem.shape === 'line') {
+              shp.className = 'w-full h-2 rounded';
+              shp.style.backgroundColor = elem.color;
+            } else if (elem.shape === 'ring') {
+              shp.className = 'w-full h-full rounded-full';
+              shp.style.border = `6px solid ${elem.color}`;
+            }
+
+            wrapper.appendChild(shp);
+          }
+
+          canvasElements.appendChild(wrapper);
+        });
+
+        updateSelectionOverlay();
+      }
+
+      function selectElement(id) {
+        state.selectedId = id;
+        renderCanvas();
+        
+        // Sync text input keyboard box
+        const elem = state.elements.find(e => e.id === id);
+        if (elem && elem.type === 'text') {
+          document.getElementById('textInput').value = elem.text;
+          document.getElementById('textSizeSlider').value = elem.fontSize;
+        }
+      }
+
+      function updateSelectionOverlay() {
+        if (state.selectedId) {
+          selectionOverlay.classList.remove('opacity-0', 'pointer-events-none', '-translate-y-2');
+        } else {
+          selectionOverlay.classList.add('opacity-0', 'pointer-events-none', '-translate-y-2');
+        }
+      }
+
+      function applyColorToSelected(color) {
+        if (state.selectedId) {
+          const elem = state.elements.find(e => e.id === state.selectedId);
+          if (elem) elem.color = color;
+        } else {
+          // If nothing selected, set paper background color
+          artboard.style.backgroundColor = color;
+        }
+        renderCanvas();
+      }
+
+      // Add Text
+      document.getElementById('btnAddText').addEventListener('click', () => {
+        const textVal = document.getElementById('textInput').value.trim() || 'Tap to Write';
+        const newElem = {
+          id: 'elem_' + Date.now(),
+          type: 'text',
+          text: textVal,
+          fontSize: 28,
+          fontFamily: 'Inter',
+          color: '#000000',
+          x: 70, y: 140,
+          width: 200, height: 60
+        };
+        state.elements.push(newElem);
+        selectElement(newElem.id);
+      });
+
+      // Keyboard text typing listener
+      document.getElementById('textInput').addEventListener('input', (e) => {
+        const elem = state.elements.find(e => e.id === state.selectedId);
+        if (elem && elem.type === 'text') {
+          elem.text = e.target.value;
+          renderCanvas();
+        }
+      });
+
+      // Text size buttons
+      document.querySelectorAll('.btn-text-size').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const size = parseInt(btn.getAttribute('data-size'));
+          document.getElementById('textSizeSlider').value = size;
+          const elem = state.elements.find(e => e.id === state.selectedId);
+          if (elem && elem.type === 'text') {
+            elem.fontSize = size;
+            renderCanvas();
+          }
+        });
+      });
+
+      // Text size slider
+      document.getElementById('textSizeSlider').addEventListener('input', (e) => {
+        const elem = state.elements.find(e => e.id === state.selectedId);
+        if (elem && elem.type === 'text') {
+          elem.fontSize = parseInt(e.target.value);
+          renderCanvas();
+        }
+      });
+
+      // Fonts options
+      document.querySelectorAll('.btn-font').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const font = btn.getAttribute('data-font');
+          const elem = state.elements.find(e => e.id === state.selectedId);
+          if (elem && elem.type === 'text') {
+            elem.fontFamily = font;
+            renderCanvas();
+          }
+        });
+      });
+
+      // Add Shape
+      document.querySelectorAll('.btn-add-shape').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const shapeType = btn.getAttribute('data-shape');
+          const newElem = {
+            id: 'elem_' + Date.now(),
+            type: 'shape',
+            shape: shapeType,
+            color: '#4F46E5',
+            x: 120, y: 120,
+            width: 100, height: 100
+          };
+          if (shapeType === 'line') { newElem.width = 160; newElem.height = 20; }
+          state.elements.push(newElem);
+          selectElement(newElem.id);
+        });
+      });
+
+      // Built-in Logo Presets
+      document.querySelectorAll('.btn-preset').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const preset = btn.getAttribute('data-preset');
+          state.elements = [];
+          if (preset === 'luxury') {
+            state.elements.push(
+              { id: '1', type: 'shape', shape: 'ring', color: '#D4AF37', x: 120, y: 70, width: 100, height: 100 },
+              { id: '2', type: 'text', text: 'M', fontSize: 48, fontFamily: 'Cinzel', color: '#D4AF37', x: 120, y: 85, width: 100, height: 60 },
+              { id: '3', type: 'text', text: 'MIMI CREST', fontSize: 20, fontFamily: 'Cinzel', color: '#000000', x: 70, y: 190, width: 200, height: 40 }
+            );
+          } else if (preset === 'cyber') {
+            state.elements.push(
+              { id: '1', type: 'shape', shape: 'hexagon', color: '#00FFFF', x: 120, y: 70, width: 100, height: 100 },
+              { id: '2', type: 'text', text: 'CYBER', fontSize: 28, fontFamily: 'Space Grotesk', color: '#000000', x: 70, y: 190, width: 200, height: 40 }
+            );
+          } else if (preset === 'minimal') {
+            state.elements.push(
+              { id: '1', type: 'shape', shape: 'square', color: '#4F46E5', x: 130, y: 80, width: 80, height: 80 },
+              { id: '2', type: 'text', text: 'STUDIO', fontSize: 24, fontFamily: 'Montserrat', color: '#000000', x: 70, y: 180, width: 200, height: 40 }
+            );
+          } else if (preset === 'nature') {
+            state.elements.push(
+              { id: '1', type: 'shape', shape: 'circle', color: '#10B981', x: 120, y: 70, width: 100, height: 100 },
+              { id: '2', type: 'text', text: 'NATURAL', fontSize: 22, fontFamily: 'Fredoka', color: '#000000', x: 70, y: 190, width: 200, height: 40 }
+            );
+          }
+          selectElement(state.elements[0].id);
+        });
+      });
+
+      // Background options
+      document.getElementById('btnPaperWhite').addEventListener('click', () => artboard.style.backgroundColor = '#ffffff');
+      document.getElementById('btnPaperDark').addEventListener('click', () => artboard.style.backgroundColor = '#0f172a');
+      document.getElementById('btnPaperCream').addEventListener('click', () => artboard.style.backgroundColor = '#FFFDD0');
+
+      // Layers Render
+      function renderLayersList() {
+        const list = document.getElementById('layersList');
+        list.innerHTML = '';
+        state.elements.slice().reverse().forEach(elem => {
+          const item = document.createElement('div');
+          item.className = `p-2 rounded-lg text-xs flex justify-between bg-slate-800 text-slate-200 cursor-pointer ${elem.id === state.selectedId ? 'border border-indigo-500' : ''}`;
+          item.innerText = `${elem.type.toUpperCase()}: ${elem.text || elem.shape}`;
+          item.addEventListener('click', () => selectElement(elem.id));
+          list.appendChild(item);
+        });
+      }
+
+      // Context Quick Bar Actions
+      document.getElementById('btnDelete').addEventListener('click', () => {
+        if (state.selectedId) {
+          state.elements = state.elements.filter(e => e.id !== state.selectedId);
+          state.selectedId = null;
+          renderCanvas();
+        }
+      });
+
+      document.getElementById('btnDuplicate').addEventListener('click', () => {
+        const elem = state.elements.find(e => e.id === state.selectedId);
+        if (elem) {
+          const clone = JSON.parse(JSON.stringify(elem));
+          clone.id = 'elem_' + Date.now();
+          clone.x += 15; clone.y += 15;
+          state.elements.push(clone);
+          selectElement(clone.id);
+        }
+      });
+
+      // Bottom Dock Drawer Navigation Handler
+      document.querySelectorAll('.nav-dock-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const target = btn.getAttribute('data-target');
+          
+          document.querySelectorAll('.tool-panel').forEach(p => p.classList.add('hidden'));
+          document.getElementById(`panel-${target}`).classList.remove('hidden');
+
+          drawerPanel.style.maxHeight = '280px';
+          renderLayersList();
+        });
+      });
+
+      document.getElementById('btnCloseDrawer').addEventListener('click', () => {
+        drawerPanel.style.maxHeight = '0px';
+      });
+
+      // Clear Canvas
+      document.getElementById('btnClear').addEventListener('click', () => {
+        state.elements = [];
+        state.selectedId = null;
+        renderCanvas();
+      });
+
+      // Download PNG
+      document.getElementById('btnExportPNG').addEventListener('click', () => {
+        const currentSel = state.selectedId;
+        state.selectedId = null;
+        renderCanvas();
+
+        html2canvas(artboard, { scale: 2 }).then(canvas => {
+          const link = document.createElement('a');
+          link.download = 'mimi-designer.png';
+          link.href = canvas.toDataURL('image/png');
+          link.click();
+
+          state.selectedId = currentSel;
+          renderCanvas();
+        });
+      });
+
+      // Initialize
+      initColorGrid();
+      lucide.createIcons();
+    });
+  </script>
 </body>
 </html>
 ```
